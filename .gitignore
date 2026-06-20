@@ -1,0 +1,46 @@
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# uv
+.uv/
+
+# Outputs (Excel reports, audit logs)
+outputs/
+*.xlsx
+audit_logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Claude Code (machine-specific)
+.agents/
+.claude/
+skills-lock.json

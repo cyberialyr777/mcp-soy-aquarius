@@ -1,0 +1,3732 @@
+{
+  "2024-04": {
+    "nombre_hoja": "ABRIL.",
+    "pedidos": {
+      "RED NATURA": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 28,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MEZA": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      ": NO PEDIR": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      ": NO PEDIR TODAVIA": [
+        {
+          "dia": 7,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RM FLEX": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "GENSIS": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 28,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AZTECA": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MALANGAS": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SOYAQUARIUS F.": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DONSOL": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ARQ. MORALES": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 25,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 25,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 25,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "OCCIDENTE/GUAJE": [
+        {
+          "dia": 25,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ]
+    }
+  },
+  "2025-08": {
+    "nombre_hoja": "AGOSTO 2025",
+    "pedidos": {
+      "MEZA": [
+        {
+          "dia": 1,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "RMFLEX": [
+        {
+          "dia": 1,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 1,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 1,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 4,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 4,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 4,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 4,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 22,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "RED NATURA": [
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 25,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 25,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GRANOLA GOURMET": [
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 12,
+          "dia_semana": "MARTES"
+        },
+        {
+          "dia": 26,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "DISTRIBUIDORA G.": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "VITAL HEALT": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "AARO": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MALANGA": [
+        {
+          "dia": 22,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 22,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 22,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CRITAB": [
+        {
+          "dia": 22,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 25,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DULET": [
+        {
+          "dia": 25,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 25,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 27,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNU AMP, JUMBO": [
+        {
+          "dia": 27,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "OCCIDENTE/ GUAJE": [
+        {
+          "dia": 27,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 27,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 27,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 29,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 29,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "ARQ. MORALES": [
+        {
+          "dia": 29,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "B'GRAAN": [
+        {
+          "dia": 29,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "AZTECA": [
+        {
+          "dia": 29,
+          "dia_semana": "VIERNES"
+        }
+      ]
+    }
+  },
+  "2025-09": {
+    "nombre_hoja": "SEPTIEMBRE 2025",
+    "pedidos": {
+      "MEZA": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RM+FLEX": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DISTRIBUIDORA G.": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SOYAQUARIUS": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RED NATURA": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 23,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 9,
+          "dia_semana": "MARTES"
+        },
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "GRANOLA GOURMET": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "AARO": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DULET": [
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MALANGA": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNU AMP, JUMBO": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OCCIDENTE/ GUAJE": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 29,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 29,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ARQ. MORALES": [
+        {
+          "dia": 29,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "B'GRAAN": [
+        {
+          "dia": 29,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "AZTECA": [
+        {
+          "dia": 29,
+          "dia_semana": "LUNES"
+        }
+      ]
+    }
+  },
+  "2025-10": {
+    "nombre_hoja": "OCTUBRE 25",
+    "pedidos": {
+      "MEZA": [
+        {
+          "dia": 1,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RM+FLEX": [
+        {
+          "dia": 1,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 1,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 1,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 3,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 3,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 3,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 3,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 3,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RED NATURA": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DERMA SPA": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 6,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 8,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SOYAQUARIUS F": [
+        {
+          "dia": 10,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 13,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 15,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 17,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 20,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 22,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 24,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OCCIDENTE/GUAJE": [
+        {
+          "dia": 24,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 24,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 24,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ARQ. MORALES": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 27,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EDAD CERO": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AZTECA": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "B'GRAAN": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 29,
+          "dia_semana": "MIERCOLES"
+        }
+      ]
+    }
+  },
+  "2025-11": {
+    "nombre_hoja": "NOVIEMBRE 2025",
+    "pedidos": {
+      "MEZA": [
+        {
+          "dia": 3,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 3,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RED NATURA": [
+        {
+          "dia": 3,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 18,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 3,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 17,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 3,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 14,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 28,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 4,
+          "dia_semana": "MARTES"
+        },
+        {
+          "dia": 17,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 18,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 5,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 5,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RM+FLEX": [
+        {
+          "dia": 5,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 5,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 5,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 19,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 7,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 7,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 7,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 7,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 7,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 10,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 10,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 10,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 10,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 10,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 12,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 12,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 12,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 12,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MALANGAS": [
+        {
+          "dia": 14,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 14,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SOYAQUARIUS F.": [
+        {
+          "dia": 14,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 14,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 17,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 17,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 17,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 19,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 19,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 19,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 19,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 21,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 21,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 21,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 21,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 24,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 24,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OCCIDENTE/GUAJE": [
+        {
+          "dia": 24,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 24,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 26,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 26,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 26,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 26,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "B'GRAAN": [
+        {
+          "dia": 26,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 28,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 28,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 28,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 28,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 28,
+          "dia_semana": "VIERNES"
+        }
+      ]
+    }
+  },
+  "2025-12": {
+    "nombre_hoja": "DICIEMBRE 2025",
+    "pedidos": {
+      "MEZA": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RED NATURA": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 16,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 1,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 2,
+          "dia_semana": "MARTES"
+        },
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 16,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RM+FLEX": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 3,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 5,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 8,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 10,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MALANGAS": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SOYAQUARIUS F.": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 12,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DONSOL": [
+        {
+          "dia": 15,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 17,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 19,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OCCIDENTE/GUAJE": [
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 22,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "B'GRAAN": [
+        {
+          "dia": 24,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 26,
+          "dia_semana": "VIERNES"
+        }
+      ]
+    }
+  },
+  "2026-01": {
+    "nombre_hoja": "ENERO 2026",
+    "pedidos": {
+      "MEZA": [
+        {
+          "dia": 1,
+          "dia_semana": "JUEVES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 1,
+          "dia_semana": "JUEVES"
+        }
+      ],
+      "RM+FLEX": [
+        {
+          "dia": 1,
+          "dia_semana": "JUEVES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 1,
+          "dia_semana": "JUEVES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 3,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "RED NATURA": [
+        {
+          "dia": 3,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 3,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 3,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "COLPAC. REDNA": [
+        {
+          "dia": 3,
+          "dia_semana": "SABADO"
+        },
+        {
+          "dia": 17,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 5,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 5,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 5,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 5,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 12,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 5,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 16,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 19,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 6,
+          "dia_semana": "MARTES"
+        },
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 7,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 7,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 7,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 7,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 9,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 9,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 9,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 9,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "MALANGAS": [
+        {
+          "dia": 12,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 12,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SOYAQUARIUS F.": [
+        {
+          "dia": 12,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 12,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 14,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 14,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DONSOL": [
+        {
+          "dia": 14,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 16,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 16,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 16,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 16,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 19,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 19,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 19,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 19,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 21,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 21,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 21,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 21,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 23,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 23,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OCCIDENTE/GUAJE": [
+        {
+          "dia": 23,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 23,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "B'GRAAN": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ]
+    }
+  },
+  "2026-02": {
+    "nombre_hoja": "FEBRERO 2026",
+    "pedidos": {
+      "COLPAC": [
+        {
+          "dia": 3,
+          "dia_semana": "MARTES"
+        },
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 3,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "RED NATURA": [
+        {
+          "dia": 3,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 3,
+          "dia_semana": "MARTES"
+        },
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COLPAC. REDNA": [
+        {
+          "dia": 3,
+          "dia_semana": "MARTES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RM+FLEX": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MEZA": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AZTECA": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MALANGAS": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SOYAQUARIUS F.": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DONSOL": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      ". REDNA": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 20,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 20,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OCCIDENTE/GUAJE": [
+        {
+          "dia": 20,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 20,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 20,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "INQUIETA": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PETEN": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ]
+    }
+  },
+  "2026-03": {
+    "nombre_hoja": "MARZO 26",
+    "pedidos": {
+      "RED NATURA": [
+        {
+          "dia": 2,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 2,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 2,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MEZA": [
+        {
+          "dia": 2,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 2,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RM FLEX": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 4,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 6,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 9,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AZTECA": [
+        {
+          "dia": 11,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MALANGAS": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SOYAQUARIUS F.": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 13,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DONSOL": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ARQ. MORALES": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 16,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 18,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 20,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 20,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 20,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "OCCIDENTE/GUAJE": [
+        {
+          "dia": 20,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 23,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 25,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TROPICAL HONEY": [
+        {
+          "dia": 27,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PETEN": [
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "INQUIETA": [
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 30,
+          "dia_semana": "LUNES"
+        }
+      ]
+    }
+  },
+  "2026-05": {
+    "nombre_hoja": "MAYO 26",
+    "pedidos": {
+      "RED NATURA": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 29,
+          "dia_semana": "JUEVES"
+        }
+      ],
+      "SMN": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "HOLISTIC": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MEZA": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DIVINA": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DXN": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "COLPAC": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TONICOL": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      ": NO PEDIR": [
+        {
+          "dia": 6,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      ": NO PEDIR TODAVIA": [
+        {
+          "dia": 7,
+          "dia_semana": "JUEVES"
+        }
+      ],
+      "PRONASOYA 1": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "RM FLEX": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "ULTRA SOYA": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "D. GOLD": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "IBIZA GOLD": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "GENSIS": [
+        {
+          "dia": 8,
+          "dia_semana": "VIERNES"
+        },
+        {
+          "dia": 22,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "KOKUSAI": [
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "QUALI": [
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "PROSA": [
+        {
+          "dia": 11,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "ZACATLAN": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "GRANOLA G.": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SAN RO": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "OMNILIFE": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        },
+        {
+          "dia": 29,
+          "dia_semana": "JUEVES"
+        }
+      ],
+      "VIVRA": [
+        {
+          "dia": 13,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "MALANGAS": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "CAALFRABET": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "TEPEHUANI": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SANDY": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONAT": [
+        {
+          "dia": 15,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "SUPRA": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SOYAQUARIUS F.": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "COHONASA/BIONUTREX": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "KANEK": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "MERZA": [
+        {
+          "dia": 18,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "SELTROX": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "PAHTLY": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "ARQ. MORALES": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AYAHUASCA": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "DONSOL": [
+        {
+          "dia": 20,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "SANOL": [
+        {
+          "dia": 22,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "SEMILLAS": [
+        {
+          "dia": 22,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "AARO NATURAL": [
+        {
+          "dia": 22,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "FLOR DE ALOE": [
+        {
+          "dia": 22,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "CACAOKAN": [
+        {
+          "dia": 22,
+          "dia_semana": "SABADO"
+        }
+      ],
+      "RAPIFRUT": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "XILOU": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "EL ROSARIO": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "OCCID./GUAJE": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "DULLET": [
+        {
+          "dia": 26,
+          "dia_semana": "LUNES"
+        }
+      ],
+      "GENESIS": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "AZTECA": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "TECNUTRITIONS": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "EL OTRO": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "RICHEST": [
+        {
+          "dia": 28,
+          "dia_semana": "MIERCOLES"
+        }
+      ],
+      "OCOTZOTL": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "MUNDO NATURAL": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "QUIMICOS": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PLAMESI": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ],
+      "PRONASOYA 2": [
+        {
+          "dia": 30,
+          "dia_semana": "VIERNES"
+        }
+      ]
+    }
+  }
+}
