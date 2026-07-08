@@ -115,9 +115,10 @@ class TraspasosPlanInput(BaseModel):
     cedis_keyword: str = Field(default="CEDIS", description="Substring para identificar la tienda CEDIS")
 
 
-class TraspasosBorradorInput(BaseModel):
+class TraspasosCargarModuloInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
+    proveedor: str = Field(..., description="Nombre del proveedor", min_length=1)
     lineas_json: str = Field(
         ...,
         description=(
@@ -126,17 +127,83 @@ class TraspasosBorradorInput(BaseModel):
             "\"destino\": \"B\", \"cantidad\": 5, \"tipo_origen\": \"CEDIS\"}]'"
         ),
     )
-    origen_referencia: str = Field(
-        default="",
-        description="Referencia opcional para identificar los pickings (ej. 'DONSOL-JUN-2026')",
-    )
+    origen_referencia: str = Field(default="", description="Referencia del lote (ej. 'DONSOL-JUN-2026')")
 
 
-class TraspasosValidarInput(BaseModel):
+class TraspasosGetEstadoInput(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
-    picking_ids: list[int] = Field(
+    proveedor: str = Field(..., description="Nombre del proveedor", min_length=1)
+    state: str = Field(default="", description="Filtrar por estado. Vacío = borrador+verificado")
+
+
+class TraspasosGenerarPickingsInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    proveedor: str = Field(..., description="Nombre del proveedor", min_length=1)
+    origen_referencia: str = Field(default="", description="Referencia para los pickings (ej. 'DONSOL-JUN-2026')")
+
+
+# ---------------------------------------------------------------------------
+# Sprint 4 — Auditoría y validación
+# ---------------------------------------------------------------------------
+
+class AuditRegistrarAccionInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    usuario: str = Field(..., description="Usuario que ejecuta la acción", min_length=1)
+    accion: str = Field(..., description="Descripción de la acción (ej. 'calcular_paso1')", min_length=1)
+    proveedor: str = Field(default="", description="Nombre del proveedor involucrado")
+    resultados_json: str = Field(default="", description="JSON opcional con resumen de resultados")
+    archivos_generados: list[str] = Field(default_factory=list, description="Rutas de archivos generados")
+
+
+class ValidationValidarCorridaInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    paso3_json: str = Field(
         ...,
-        description="Lista de IDs de stock.picking a validar (retornados por traspasos_crear_borrador)",
-        min_length=1,
+        description="JSON del campo 'registros' de la salida de pedidos_crear_registros",
     )
+    lineas_json: str = Field(
+        ...,
+        description="JSON del campo 'lineas' de la salida de traspasos_calcular_plan",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Sprint 4 — Pedidos
+# ---------------------------------------------------------------------------
+
+class PedidosCrearRegistrosInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    proveedor: str = Field(..., description="Nombre del proveedor", min_length=1)
+    fecha_inicio: str = Field(..., description="Inicio del periodo de análisis 'YYYY-MM-DD'")
+    fecha_fin: str = Field(..., description="Fin del periodo de análisis 'YYYY-MM-DD'")
+    cedis_keyword: str = Field(default="CEDIS", description="Keyword para identificar CEDIS")
+
+
+class PedidosActualizarReabastecimientoInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    proveedor: str = Field(..., description="Nombre del proveedor", min_length=1)
+
+
+class PedidosGetEstadoInput(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    proveedor: str = Field(..., description="Nombre del proveedor", min_length=1)
+    state: str = Field(default="", description="Filtrar por estado. Vacío = todos")
+
+
+# ---------------------------------------------------------------------------
+# Sprint 4 — Reportes
+# ---------------------------------------------------------------------------
+
+class ReportesExcelInput(BaseModel):
+    """Reutilizado por paso1, paso2, paso3 y costeo."""
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    proveedor: str = Field(..., description="Nombre del proveedor", min_length=1)
+    datos_json: str = Field(..., description="JSON con los datos del paso a exportar")

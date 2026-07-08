@@ -1,10 +1,11 @@
-"""Tools MCP del módulo de traspasos — Sprint 3.
+"""Tools MCP del módulo de traspasos — Sprint 3 + Sprint 5b.
 
-Cuatro tools:
+Tres tools activos:
   traspasos_verificar_cedis   — existencia actual en CEDIS por proveedor
   traspasos_calcular_plan     — Paso 2: plan de traspasos (CEDIS → rezagadas → activos)
-  traspasos_crear_borrador    — crea pickings internos en borrador en Odoo
-  traspasos_validar           — valida (confirma) pickings en borrador
+  traspasos_cargar_modulo     — carga el plan como filas borrador en x_traspasos (NO crea pickings)
+  traspasos_get_estado        — consulta filas en x_traspasos por proveedor y estado
+  traspasos_generar_pickings  — lee verificados en x_traspasos y crea stock.picking en lote
 """
 import json
 import logging
@@ -18,8 +19,9 @@ from src.tools.compras import calcular_sugeridos_proveedor, _get_product_ids_for
 from src.tools.schemas import (
     TraspasosCedisInput,
     TraspasosPlanInput,
-    TraspasosBorradorInput,
-    TraspasosValidarInput,
+    TraspasosCargarModuloInput,
+    TraspasosGetEstadoInput,
+    TraspasosGenerarPickingsInput,
 )
 
 logger = logging.getLogger(__name__)
@@ -31,21 +33,36 @@ def _err(e: Exception) -> str:
     return f"Error inesperado ({type(e).__name__}): {e}"
 
 
+# Nombres de tienda del plan que no matchean el nombre corto del almacén en Odoo.
+LOCATION_ALIASES = {
+    "GUAYABAL": "GUAYA",
+    "INDUSTRIAL": "INDUS",
+    "CIUDAD": "CITY CENTER",
+    "CITY": "CITY CENTER",
+    "UNIVERSIDAD": "UNI",
+    "SENDERO": "SEND",
+    "ZARAGOZA": "ZARA",
+}
+
+
 def _buscar_location_id(all_locs: list[dict], nombre_tienda: str) -> int | None:
-    """Busca el location ID que mejor coincide con el nombre de la tienda."""
+    """Busca el location ID que mejor coincide con el nombre de la tienda.
+
+    Si el nombre no matchea directamente, reintenta con su alias en LOCATION_ALIASES.
+    """
     t_upper = nombre_tienda.strip().upper()
-    # Coincidencia exacta primero
     for loc in all_locs:
         if loc.get("name", "").upper() == t_upper:
             return loc["id"]
-    # Coincidencia parcial en nombre corto
     for loc in all_locs:
         if t_upper in loc.get("name", "").upper():
             return loc["id"]
-    # Coincidencia parcial en nombre completo
     for loc in all_locs:
         if t_upper in loc.get("complete_name", "").upper():
             return loc["id"]
+    alias = LOCATION_ALIASES.get(t_upper)
+    if alias and alias != t_upper:
+        return _buscar_location_id(all_locs, alias)
     return None
 
 
@@ -196,7 +213,6 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             }
         """
         try:
-            # Paso 1: stock sugerido para tiendas con POS
             sugeridos_por_tienda, _ = calcular_sugeridos_proveedor(
                 odoo, params.proveedor, params.fecha_inicio, params.fecha_fin
             )
@@ -211,10 +227,8 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     "advertencia": "No se encontraron ventas del proveedor en el periodo",
                 }, ensure_ascii=False)
 
-            # Obtener product_ids para consultar CEDIS
             product_ids, nombres = _get_product_ids_for_proveedor(odoo, params.proveedor)
 
-            # Agregar CEDIS al mapa si tiene stock del proveedor
             quants_cedis = odoo.search_read(
                 "stock.quant",
                 [
@@ -235,7 +249,6 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     if pid:
                         stock_cedis[pid] = stock_cedis.get(pid, 0.0) + float(q["quantity"] or 0)
 
-            # Crear entradas sintéticas de CEDIS (nuevo_maximo=0 → nunca es destino)
             if stock_cedis:
                 cedis_prods = [
                     ProductoSugerido(
@@ -256,7 +269,6 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 if cedis_prods:
                     sugeridos_por_tienda[cedis_nombre] = cedis_prods
 
-            # Paso 2: calcular plan de traspasos
             planner = TransferPlanner()
             lineas, resumen = planner.calcular_plan(sugeridos_por_tienda, params.cedis_keyword)
 
@@ -300,7 +312,7 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             return _err(e)
 
     @mcp.tool(
-        name="traspasos_crear_borrador",
+        name="traspasos_cargar_modulo",
         annotations={
             "readOnlyHint": False,
             "destructiveHint": False,
@@ -308,16 +320,182 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             "openWorldHint": True,
         },
     )
-    def traspasos_crear_borrador(params: TraspasosBorradorInput) -> str:
-        """Crea pickings de traspaso interno en borrador en Odoo a partir del plan.
+    def traspasos_cargar_modulo(params: TraspasosCargarModuloInput) -> str:
+        """Carga el plan de traspasos calculado al módulo x_traspasos en Odoo como filas en estado 'borrador'.
 
-        Para cada par (origen, destino) único en las lineas, crea un stock.picking
-        de tipo 'internal' con las líneas de movimiento correspondientes.
-        Los pickings quedan en estado 'draft' para revisión antes de validar.
+        NO crea stock.picking. Las vendedoras podrán ver las filas de su tienda,
+        agregar comentarios y ajustar 'cantidad_final'. El generador de pickings
+        luego marca cada fila como 'verificado' y ejecuta traspasos_generar_pickings.
 
         Args:
-            params: lineas_json (JSON string del array 'lineas' de traspasos_calcular_plan),
-                    origen_referencia (str, opcional — se usa como campo 'origin' del picking)
+            params: proveedor, lineas_json (JSON del array 'lineas' de traspasos_calcular_plan),
+                    origen_referencia (opcional — etiqueta del lote, ej. 'DONSOL-JUN-2026')
+
+        Returns:
+            JSON con schema:
+            {
+                "creados": int,
+                "ids": [int],
+                "errores": [str],
+                "proveedor": str,
+                "origen_referencia": str
+            }
+        """
+        try:
+            lineas = json.loads(params.lineas_json)
+            if not lineas:
+                return json.dumps({
+                    "creados": 0,
+                    "ids": [],
+                    "errores": [],
+                    "advertencia": "No hay líneas de traspaso para cargar",
+                }, ensure_ascii=False)
+
+            referencia = params.origen_referencia or f"{params.proveedor}-TRASPASO"
+            ids_creados = []
+            errores = []
+
+            for linea in lineas:
+                try:
+                    rec_id = odoo.create("x_traspasos", {
+                        "tipo": "por_proveedor",
+                        "proveedor": params.proveedor,
+                        "product_id": linea["product_id"],
+                        "origen": linea["origen"],
+                        "destino": linea["destino"],
+                        "cantidad_propuesta": linea["cantidad"],
+                        "cantidad_final": linea["cantidad"],
+                        "comentarios": "",
+                        "state": "borrador",
+                        "ref_interna": referencia,
+                    })
+                    ids_creados.append(rec_id)
+                except Exception as e_inner:
+                    errores.append(f"{linea.get('nombre', linea.get('product_id'))}: {e_inner}")
+
+            logger.info(
+                "traspasos_cargar_modulo: %d registros creados en x_traspasos para %s",
+                len(ids_creados), params.proveedor,
+            )
+
+            return json.dumps({
+                "creados": len(ids_creados),
+                "ids": ids_creados,
+                "errores": errores,
+                "proveedor": params.proveedor,
+                "origen_referencia": referencia,
+            }, ensure_ascii=False)
+
+        except Exception as e:
+            return _err(e)
+
+    @mcp.tool(
+        name="traspasos_get_estado",
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": True,
+        },
+    )
+    def traspasos_get_estado(params: TraspasosGetEstadoInput) -> str:
+        """Consulta el estado de las filas en x_traspasos para un proveedor.
+
+        Por defecto muestra solo filas activas (borrador + verificado). Con state='ejecutado'
+        o state='cancelado' muestra el historial.
+
+        Args:
+            params: proveedor (str), state (str, default='' → borrador+verificado)
+
+        Returns:
+            JSON con schema:
+            {
+                "proveedor": str,
+                "state_filtro": str,
+                "filas": [
+                    {
+                        "id": int,
+                        "origen": str,
+                        "destino": str,
+                        "product_id": int,
+                        "cantidad_propuesta": float,
+                        "cantidad_final": float,
+                        "comentarios": str,
+                        "state": str
+                    }
+                ],
+                "total": int,
+                "resumen_estados": {"borrador": int, "verificado": int, "ejecutado": int, "cancelado": int}
+            }
+        """
+        try:
+            domain: list = [["proveedor", "=", params.proveedor]]
+            if params.state:
+                domain.append(["state", "=", params.state])
+            else:
+                domain.append(["state", "in", ["borrador", "verificado"]])
+
+            registros = odoo.search_read(
+                "x_traspasos",
+                domain,
+                ["id", "product_id", "origen", "destino", "cantidad_propuesta",
+                 "cantidad_final", "comentarios", "state", "picking_id"],
+                limit=0,
+            )
+
+            filas = [
+                {
+                    "id": r["id"],
+                    "product_id": r["product_id"][0] if isinstance(r.get("product_id"), list) else r.get("product_id"),
+                    "nombre": r["product_id"][1] if isinstance(r.get("product_id"), list) else "",
+                    "origen": r.get("origen", ""),
+                    "destino": r.get("destino", ""),
+                    "cantidad_propuesta": r.get("cantidad_propuesta", 0),
+                    "cantidad_final": r.get("cantidad_final", 0),
+                    "comentarios": r.get("comentarios", ""),
+                    "state": r.get("state", ""),
+                    "picking_id": r["picking_id"][0] if isinstance(r.get("picking_id"), list) else r.get("picking_id"),
+                }
+                for r in registros
+            ]
+
+            resumen: dict[str, int] = {"borrador": 0, "verificado": 0, "ejecutado": 0, "cancelado": 0}
+            for f in filas:
+                s = f["state"]
+                if s in resumen:
+                    resumen[s] += 1
+
+            return json.dumps({
+                "proveedor": params.proveedor,
+                "state_filtro": params.state or "borrador+verificado",
+                "filas": filas,
+                "total": len(filas),
+                "resumen_estados": resumen,
+            }, ensure_ascii=False)
+
+        except Exception as e:
+            return _err(e)
+
+    @mcp.tool(
+        name="traspasos_generar_pickings",
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": False,
+            "idempotentHint": False,
+            "openWorldHint": True,
+        },
+    )
+    def traspasos_generar_pickings(params: TraspasosGenerarPickingsInput) -> str:
+        """Lee las filas verificadas de x_traspasos y crea stock.picking en borrador en Odoo en lote.
+
+        Solo procesa filas con state='verificado'. Usa 'cantidad_final' (no cantidad_propuesta).
+        Después de crear los pickings, actualiza las filas a state='ejecutado'.
+        Las vendedoras hacen la salida/entrada físicamente en Odoo — este tool NO valida pickings.
+
+        Solo debe ejecutarlo el generador de pickings después de que todas las filas estén verificadas.
+
+        Args:
+            params: proveedor (str), origen_referencia (str, opcional)
 
         Returns:
             JSON con schema:
@@ -325,21 +503,29 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 "pickings_creados": [
                     {"picking_id": int, "name": str, "origen": str, "destino": str, "lineas": int}
                 ],
+                "filas_ejecutadas": int,
                 "errores": [str],
                 "total_pickings": int
             }
         """
         try:
-            lineas = json.loads(params.lineas_json)
-            if not lineas:
+            # Leer filas verificadas de x_traspasos
+            filas_verificadas = odoo.search_read(
+                "x_traspasos",
+                [["proveedor", "=", params.proveedor], ["state", "=", "verificado"]],
+                ["id", "product_id", "origen", "destino", "cantidad_final"],
+                limit=0,
+            )
+
+            if not filas_verificadas:
                 return json.dumps({
                     "pickings_creados": [],
+                    "filas_ejecutadas": 0,
                     "errores": [],
                     "total_pickings": 0,
-                    "advertencia": "No hay líneas de traspaso para crear",
+                    "advertencia": f"No hay filas verificadas para '{params.proveedor}' en x_traspasos",
                 }, ensure_ascii=False)
 
-            # Cargar todas las ubicaciones internas para hacer el matching
             all_locs = odoo.search_read(
                 "stock.location",
                 [["usage", "=", "internal"], ["active", "=", True]],
@@ -347,19 +533,20 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 limit=0,
             )
 
-            # Obtener picking type 'internal' (primer resultado)
             picking_types = odoo.search_read(
                 "stock.picking.type",
                 [["code", "=", "internal"]],
-                ["id", "name"],
+                ["id"],
                 limit=1,
             )
             if not picking_types:
-                return "Error: no se encontró un tipo de picking interno en Odoo"
+                return "Error: no se encontró tipo de picking interno en Odoo"
             picking_type_id = picking_types[0]["id"]
 
-            # Obtener UOM por defecto de los productos
-            pids_unicos = list({l["product_id"] for l in lineas})
+            pids_unicos = list({
+                r["product_id"][0] if isinstance(r["product_id"], list) else r["product_id"]
+                for r in filas_verificadas
+            })
             products_data = odoo.search_read(
                 "product.product",
                 [["id", "in", pids_unicos]],
@@ -370,137 +557,85 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 p["id"]: p["uom_id"][0] for p in products_data if p.get("uom_id")
             }
 
-            # Agrupar líneas por (origen, destino)
+            # Agrupar por (origen, destino)
             grupos: dict[tuple[str, str], list[dict]] = {}
-            for linea in lineas:
-                key = (linea["origen"], linea["destino"])
-                grupos.setdefault(key, []).append(linea)
+            for fila in filas_verificadas:
+                pid = fila["product_id"][0] if isinstance(fila["product_id"], list) else fila["product_id"]
+                key = (fila["origen"], fila["destino"])
+                grupos.setdefault(key, []).append({
+                    "fila_id": fila["id"],
+                    "product_id": pid,
+                    "cantidad_final": float(fila.get("cantidad_final") or 0),
+                })
 
+            referencia = params.origen_referencia or f"{params.proveedor}-PICKINGS"
             pickings_creados = []
             errores = []
+            ids_ejecutados = []
 
-            for (origen, destino), grupo_lineas in grupos.items():
+            for (origen, destino), grupo in grupos.items():
                 loc_origen_id = _buscar_location_id(all_locs, origen)
                 loc_destino_id = _buscar_location_id(all_locs, destino)
 
                 if not loc_origen_id:
-                    errores.append(f"No se encontró ubicación para '{origen}'")
+                    errores.append(f"No se encontró ubicación para origen '{origen}'")
                     continue
                 if not loc_destino_id:
-                    errores.append(f"No se encontró ubicación para '{destino}'")
+                    errores.append(f"No se encontró ubicación para destino '{destino}'")
                     continue
 
-                referencia = params.origen_referencia or "MCP-TRASPASO"
+                picking_id = odoo.create("stock.picking", {
+                    "picking_type_id": picking_type_id,
+                    "location_id": loc_origen_id,
+                    "location_dest_id": loc_destino_id,
+                    "origin": referencia,
+                })
 
-                # Crear picking
-                picking_id = odoo.create(
-                    "stock.picking",
-                    {
-                        "picking_type_id": picking_type_id,
-                        "location_id": loc_origen_id,
-                        "location_dest_id": loc_destino_id,
-                        "origin": referencia,
-                    },
-                )
-
-                # Crear stock.move por cada línea del grupo
-                for linea in grupo_lineas:
-                    pid = linea["product_id"]
+                lineas_ok = 0
+                for item in grupo:
+                    pid = item["product_id"]
                     uom_id = uom_por_product.get(pid)
                     if not uom_id:
                         errores.append(f"Sin UOM para producto {pid} — línea omitida")
                         continue
-                    odoo.create(
-                        "stock.move",
-                        {
-                            "picking_id": picking_id,
-                            "product_id": pid,
-                            "product_uom_qty": linea["cantidad"],
-                            "product_uom": uom_id,
-                            "location_id": loc_origen_id,
-                            "location_dest_id": loc_destino_id,
-                            "name": linea.get("nombre", str(pid)),
-                        },
-                    )
+                    odoo.create("stock.move", {
+                        "picking_id": picking_id,
+                        "product_id": pid,
+                        "product_uom_qty": item["cantidad_final"],
+                        "product_uom": uom_id,
+                        "location_id": loc_origen_id,
+                        "location_dest_id": loc_destino_id,
+                        "name": f"Traspaso {params.proveedor}",
+                    })
+                    lineas_ok += 1
+                    ids_ejecutados.append(item["fila_id"])
 
-                # Obtener nombre asignado por Odoo
                 picking_data = odoo.search_read(
-                    "stock.picking",
-                    [["id", "=", picking_id]],
-                    ["name"],
-                    limit=1,
+                    "stock.picking", [["id", "=", picking_id]], ["name"], limit=1,
                 )
                 picking_name = picking_data[0]["name"] if picking_data else str(picking_id)
+
+                # Marcar filas como ejecutado y vincular picking
+                fila_ids_grupo = [item["fila_id"] for item in grupo]
+                odoo.write("x_traspasos", fila_ids_grupo, {
+                    "state": "ejecutado",
+                    "picking_id": picking_id,
+                })
 
                 pickings_creados.append({
                     "picking_id": picking_id,
                     "name": picking_name,
                     "origen": origen,
                     "destino": destino,
-                    "lineas": len(grupo_lineas),
+                    "lineas": lineas_ok,
                 })
-
-                logger.info("Picking %s creado: %s → %s (%d líneas)", picking_name, origen, destino, len(grupo_lineas))
+                logger.info("Picking %s creado: %s → %s (%d líneas)", picking_name, origen, destino, lineas_ok)
 
             return json.dumps({
                 "pickings_creados": pickings_creados,
+                "filas_ejecutadas": len(ids_ejecutados),
                 "errores": errores,
                 "total_pickings": len(pickings_creados),
-            }, ensure_ascii=False)
-
-        except Exception as e:
-            return _err(e)
-
-    @mcp.tool(
-        name="traspasos_validar",
-        annotations={
-            "readOnlyHint": False,
-            "destructiveHint": True,
-            "idempotentHint": False,
-            "openWorldHint": True,
-        },
-    )
-    def traspasos_validar(params: TraspasosValidarInput) -> str:
-        """Valida (confirma) pickings de traspaso en borrador.
-
-        Llama a button_validate en cada stock.picking indicado.
-        ATENCIÓN: acción destructiva — el stock se mueve definitivamente.
-        Solo ejecutar después de revisar el borrador.
-
-        Args:
-            params: picking_ids (list[int]) — IDs de stock.picking a validar
-
-        Returns:
-            JSON con schema:
-            {
-                "validados": [{"picking_id": int, "name": str}],
-                "errores": [str],
-                "total_validados": int
-            }
-        """
-        try:
-            validados = []
-            errores = []
-
-            for pid in params.picking_ids:
-                try:
-                    odoo.call_method("stock.picking", "button_validate", [pid])
-                    picking_data = odoo.search_read(
-                        "stock.picking",
-                        [["id", "=", pid]],
-                        ["name", "state"],
-                        limit=1,
-                    )
-                    name = picking_data[0]["name"] if picking_data else str(pid)
-                    validados.append({"picking_id": pid, "name": name})
-                    logger.info("Picking %s validado", name)
-                except Exception as e_inner:
-                    errores.append(f"Picking {pid}: {type(e_inner).__name__}: {e_inner}")
-
-            return json.dumps({
-                "validados": validados,
-                "errores": errores,
-                "total_validados": len(validados),
             }, ensure_ascii=False)
 
         except Exception as e:

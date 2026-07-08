@@ -35,7 +35,7 @@ El MCP debe ser especializado: debe conocer los modelos, módulos y flujos reale
 | **Ventas POS** | `pos.order`, `pos.order.line`, `pos.config` | Consultar ventas por tienda, producto, categoría, proveedor y periodo. |
 | **Inventario** | `stock.quant`, `stock.location`, `arsabe_quant` | Consultar existencia real, última entrada, última salida y días sin movimiento. |
 | **Reorden** | `stock.warehouse.orderpoint` | Leer y actualizar mínimos, máximos y `qty_to_order`. |
-| **Traspasos** | `stock.picking`, `stock.move` | Crear movimientos internos entre tiendas o desde CEDIS. |
+| **Traspasos** | `stock.picking`, `stock.move`, `x_traspasos` | Módulo intermedio de revisión + movimientos internos entre tiendas o desde CEDIS. |
 | **Compras** | `purchase.order`, `purchase.order.line` | Crear pedidos a proveedor en borrador o confirmarlos con aprobación. |
 | **Módulo Pedidos** | `x_pedidos` (módulo nuevo) | Módulo personalizado donde tiendas ven y aprueban pedidos antes de subir a reabastecimiento. |
 
@@ -226,7 +226,66 @@ Antes de pedir al proveedor, el sistema verifica si el faltante puede cubrirse r
 
 ---
 
-## 9. Nuevo módulo de Odoo: "Pedidos" (x_pedidos)
+## 9. Nuevo módulo de Odoo: "Traspasos" (x_traspasos)
+
+Se desarrollará un módulo en Odoo 18 Community llamado **Traspasos** (`x_traspasos`) que reemplaza el Excel del Drive como espacio de coordinación entre el MCP, las tiendas y el responsable de pickings.
+
+### 9.1 Dos tipos de traspaso en un solo módulo
+
+| Tipo | Origen | ¿Quién carga? |
+|------|--------|--------------|
+| `por_proveedor` | Calculado por la IA al correr el Paso 2 de un proveedor | El MCP automáticamente vía `traspasos_cargar_modulo` |
+| `por_encargo` | Pedido puntual de una tienda ("mándame estos productos") | Daniel, manualmente fila por fila en Odoo (MVP) |
+
+El campo `tipo` solo etiqueta el origen. El flujo posterior (revisión, verificación, generación de pickings) es idéntico para ambos tipos.
+
+### 9.2 Estados de una fila
+
+| Estado | Significado |
+|--------|-------------|
+| `borrador` | La IA o un usuario cargó la fila. Espera revisión y comentarios de las tiendas. |
+| `verificado` | El generador de pickings revisó, ajustó y marcó la fila como lista para ejecutar. |
+| `ejecutado` | Ya se generó el picking en Odoo. Pasa al historial. |
+| `cancelado` | La fila ya no aplica. Queda registrada para auditoría. |
+
+### 9.3 Roles y permisos
+
+| Rol | Permisos |
+|-----|---------|
+| **Vendedora de tienda** | Ve solo las filas que afectan a su tienda (origen o destino). Puede agregar comentarios. No puede editar cantidades ni generar pickings. |
+| **Generador de pickings** | Ve todas las filas. Puede editar `cantidad_final`, marcar `verificado`, ejecutar "Generar pickings" y cancelar filas. |
+
+### 9.4 Vistas del módulo
+
+- **Vista activa (por defecto):** muestra filas en estado `borrador` y `verificado` — lo que requiere acción. Vendedoras ven solo su tienda.
+- **Vista historial:** muestra filas en estado `ejecutado` y `cancelado`, filtrable por fecha, proveedor y tienda. Las filas nunca se borran.
+
+### 9.5 Campos principales
+
+| Campo | Descripción | ¿Editable? |
+|-------|-------------|-----------|
+| `tipo` | `por_proveedor` o `por_encargo` | No |
+| `proveedor` | Nombre del proveedor | No |
+| `product_id` | Producto | No |
+| `origen` | Tienda de origen | No |
+| `destino` | Tienda de destino | No |
+| `cantidad_propuesta` | Cantidad calculada por la IA | No |
+| `cantidad_final` | Cantidad ajustada final | Solo generador de pickings |
+| `comentarios` | Comentarios de las tiendas | Vendedoras y generador |
+| `state` | Estado de la fila | Automático / generador |
+| `picking_id` | Referencia al picking creado | Automático |
+
+### 9.6 Conexión con el Paso 3 (pedido al proveedor)
+
+El Paso 3 calcula `qty_to_order = nuevo_máximo − existencia_después_de_traspasos`. La `existencia_después_de_traspasos` se proyecta leyendo las `cantidad_final` de las filas con `state=verificado` en `x_traspasos`. Esto garantiza que el pedido al proveedor no incluya producto que ya va a llegar vía traspaso, aunque los pickings aún estén en borrador y las vendedoras no hayan hecho la salida/entrada física.
+
+### 9.7 MVP para traspasos por encargo
+
+En el MVP, los traspasos `por_encargo` se capturan directamente en el módulo de Odoo, fila por fila, por Daniel. El MCP no participa en la carga de encargos en el MVP. La carga masiva desde Claude queda para un sprint posterior.
+
+---
+
+## 10. Nuevo módulo de Odoo: "Pedidos" (x_pedidos)
 
 Se desarrollará un nuevo módulo en Odoo 18 Community llamado **Pedidos** (`x_pedidos`) donde los trabajadores de cada tienda podrán ver y aprobar los pedidos calculados por el sistema.
 
@@ -285,12 +344,17 @@ Se desarrollará un nuevo módulo en Odoo 18 Community llamado **Pedidos** (`x_p
 5. Calcular nuevo stock sugerido (patrón de venta, catálogo ABC, picos, rezagados).
 6. Verificar si CEDIS puede surtir antes de proponer traspasos.
 7. Proponer traspasos entre tiendas (Rezagadas/Críticas primero, luego excedentes Activos).
-8. Calcular existencia después de traspasos.
-9. Calcular pedido final al proveedor.
-10. Mostrar resumen ejecutivo y pedir aprobación.
-11. Subir resultados al módulo de Pedidos en Odoo.
-12. Cuando Daniel apruebe, actualizar los orderpoints en Reabastecimiento.
-13. Generar Excel de respaldo y bitácora.
+8. **Cargar plan a `x_traspasos`** como filas `por_proveedor` en estado `borrador`. → PAUSA.
+9. **[PAUSA — Vendedoras]** Cada vendedora ve las filas de su tienda, comenta y ajusta `cantidad_final` si es necesario. Pueden convivir filas `por_encargo` cargadas por Daniel.
+10. **[PAUSA — Generador de pickings]** Revisa el lote, hace ajustes finales y marca cada fila como `verificado`.
+11. El generador de pickings ejecuta "Generar pickings" → el MCP crea los `stock.picking` en borrador en Odoo en lote. Filas pasan a `ejecutado`.
+12. Las vendedoras hacen la salida/entrada físicamente en Odoo. El MCP no auto-valida pickings.
+13. El MCP lee `x_traspasos` con `state=verificado` para proyectar `existencia_después_de_traspasos` (usa `cantidad_final`).
+14. Calcular pedido final al proveedor con la existencia proyectada.
+15. Mostrar resumen ejecutivo y pedir aprobación.
+16. Subir resultados al módulo `x_pedidos` en Odoo.
+17. Cuando Daniel apruebe, actualizar los orderpoints en Reabastecimiento.
+18. Generar Excel de respaldo y bitácora.
 
 ---
 
@@ -316,7 +380,7 @@ Se desarrollará un nuevo módulo en Odoo 18 Community llamado **Pedidos** (`x_p
 |------|-------------|
 | **Genéricas** | `odoo_search`, `odoo_read`, `odoo_create`, `odoo_write`, `odoo_call_method`, `odoo_get_fields` |
 | **Compras** | `compras_get_ventas_anio`, `compras_get_orderpoints`, `compras_calcular_stock_sugerido`, `compras_get_calendario` |
-| **Traspasos** | `traspasos_verificar_cedis`, `traspasos_calcular_plan`, `traspasos_crear_borrador`, `traspasos_validar` |
+| **Traspasos** | `traspasos_verificar_cedis`, `traspasos_calcular_plan`, `traspasos_cargar_modulo`, `traspasos_get_estado`, `traspasos_generar_pickings` |
 | **Módulo Pedidos** | `pedidos_crear_registros`, `pedidos_actualizar_reabastecimiento`, `pedidos_get_estado` |
 | **Reportes** | `reportes_generar_excel_paso1`, `reportes_generar_excel_paso2`, `reportes_generar_excel_paso3`, `reportes_generar_costeo` |
 | **Seguridad** | `auth_validar_usuario_odoo`, `audit_registrar_accion`, `validation_validar_corrida` |
@@ -353,6 +417,8 @@ Registra cada corrida: usuario, fecha, proveedor, datos consultados, reglas apli
 |------|------------|
 | **Lectura** | Consultar ventas, stock, productos, proveedores, orderpoints y movimientos. |
 | **Propuesta** | Calcular stock sugerido, traspasos, pedido final y reportes. |
+| **Carga en módulo Traspasos** | MCP sube plan `por_proveedor` a `x_traspasos` como `borrador`. Vendedoras comentan y ajustan. Sin generar pickings aún. |
+| **Generación de Traspasos** | Solo el generador de pickings: tras marcar filas como `verificado`, ejecuta creación de `stock.picking` en borrador en lote. |
 | **Carga en módulo Pedidos** | Subir resultados del Paso 3 al módulo para revisión de tiendas. Sin confirmar en Reabastecimiento. |
 | **Actualización en Reabastecimiento** | Solo Daniel puede ejecutar esta acción masiva después de que las tiendas hayan revisado. |
 
@@ -431,7 +497,9 @@ El MVP es un asistente de pedido por proveedor con aprobación en Odoo. El usuar
 La recomendación es construir un MCP general para Odoo 18 Community, con un módulo especializado de compras, traspasos y aprobación como primer caso de uso. El valor principal no está solo en consultar Odoo desde Claude, sino en **automatizar el razonamiento operativo** que hoy se hace manualmente, garantizando que el flujo de aprobación humana (módulo Pedidos + Daniel) sea parte integral del proceso antes de modificar el Reabastecimiento oficial.
 
 ```
-Ventas del año → Stock sugerido → CEDIS primero → Traspasos → Pedido final → Módulo Pedidos → Aprobación Daniel → Reabastecimiento Odoo
+Ventas del año → Stock sugerido → CEDIS primero → Plan de Traspasos
+→ x_traspasos (borrador) → Vendedoras comentan/ajustan → Generador verifica
+→ Pickings en lote → Pedido final (lee verificados) → x_pedidos → Aprobación Daniel → Reabastecimiento Odoo
 ```
 
 La configuración local del MCP (2 laptops) simplifica el despliegue inicial y reduce costos. Para el despliegue, se recomienda comenzar con un proveedor mensual de prueba y luego incorporar los 7 proveedores quincenales antes del piloto completo.

@@ -104,9 +104,12 @@ class OdooConnector:
         return self.execute(model, "read", ids, fields=fields)
 
     def create(self, model: str, values: dict) -> int:
+        # XML-RPC no puede serializar None; Odoo usa False como valor vacío.
+        values = {k: (False if v is None else v) for k, v in values.items()}
         return self.execute(model, "create", values)
 
     def write(self, model: str, ids: list[int], values: dict) -> bool:
+        values = {k: (False if v is None else v) for k, v in values.items()}
         return self.execute(model, "write", ids, values)
 
     def unlink(self, model: str, ids: list[int]) -> bool:

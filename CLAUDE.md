@@ -13,9 +13,18 @@ El servidor corre localmente en la laptop del usuario. Claude lo usa como "herra
 **El flujo central:**
 
 ```
-Ventas del año → Stock sugerido → CEDIS primero → Traspasos
-→ Pedido final → Módulo Pedidos → Aprobación Daniel → Reabastecimiento Odoo
+Ventas del año → Stock sugerido → CEDIS primero → Calcular Traspasos
+→ Cargar a x_traspasos (Borrador) → [Vendedoras comentan/ajustan cantidades]
+→ [Generador de pickings verifica] → Generar stock.pickings en lote (borrador)
+→ Pedido final (lee cantidades verificadas de x_traspasos) → Módulo x_pedidos
+→ Aprobación Daniel → Reabastecimiento Odoo
 ```
+
+**Nota sobre traspasos:** Existen dos tipos — ambos viven en `x_traspasos`, distinguidos por el campo `tipo`:
+- **`por_proveedor`** — calculados por la IA/MCP al correr el Paso 2. El MCP los carga automáticamente.
+- **`por_encargo`** — pedidos puntuales de tiendas ("mándame estos productos"). En el MVP, Daniel los captura directamente fila por fila en el módulo de Odoo. El MCP no participa en este tipo en el MVP.
+
+El MCP lee `x_traspasos` (de ambos tipos, con `state=verificado`) para calcular `existencia_despues_traspasos` y hacer el pedido final (Paso 3). Las vendedoras hacen la salida/entrada física en Odoo — el MCP nunca auto-valida pickings.
 
 **La decisión crítica no es solo cuánto pedir.** Es determinar primero si conviene pedir, reducir, eliminar, liquidar o traspasar.
 
@@ -249,7 +258,8 @@ def compras_calcular_stock_sugerido(params: StockSugeridoInput) -> str:
 | `product.product` | Productos (variante) |
 | `product.template` | Plantilla de productos |
 | `res.partner` | Proveedores / clientes |
-| `x_pedidos` | **Módulo custom** — registros de Paso 3 para aprobación |
+| `x_pedidos` | **Módulo custom** — registros de Paso 3 para aprobación de Daniel |
+| `x_traspasos` | **Módulo custom** — registros de traspasos (por proveedor y por encargo). Campos: `tipo` (por_proveedor/por_encargo), `proveedor`, `product_id`, `ref_interna`, `origen`, `destino`, `cantidad_propuesta` (readonly — calculada por IA), `cantidad_final` (editable solo por generador de pickings), `dias_sin_venta`, `comentarios` (visible para vendedoras), `state` (borrador/verificado/ejecutado/cancelado), `picking_id`. Vistas: **activa** (borrador+verificado) y **historial** (ejecutado+cancelado). |
 
 > **`arsabe_quant`** es un modelo personalizado de SoyAquarius. Extiende `stock.quant` con campos de auditoría de movimiento. Siempre preferir `arsabe_quant` sobre `stock.quant` cuando se necesite `ultima_entrada`, `ultima_salida` o `dias_sin_movimiento`.
 
@@ -281,8 +291,9 @@ def compras_calcular_stock_sugerido(params: StockSugeridoInput) -> str:
 |------|-------------|
 | `traspasos_verificar_cedis` | Verifica existencia en CEDIS por producto/proveedor |
 | `traspasos_calcular_plan` | **Paso 2** — plan de traspasos (CEDIS → rezagados → activos) |
-| `traspasos_crear_borrador` | Crea picking de traspaso en borrador en Odoo |
-| `traspasos_validar` | Valida (confirma) traspasos en borrador |
+| `traspasos_cargar_modulo` | Carga el plan como filas `por_proveedor` en `x_traspasos` con `state=borrador` (un registro por línea). No crea pickings. |
+| `traspasos_get_estado` | Consulta filas de `x_traspasos` por proveedor: borradores, verificados, comentarios de vendedoras |
+| `traspasos_generar_pickings` | Lee `x_traspasos` con `state=verificado` y crea `stock.picking` en borrador en Odoo en lote. Solo lo ejecuta el generador de pickings. |
 
 ### Pedidos / Orderpoints (Sprint 4)
 | Tool | Descripción |
@@ -411,6 +422,8 @@ qty_to_order = max(0, nuevo_maximo - existencia_despues_traspasos)
 |------|-------------|
 | **Lectura** | Consultar ventas, stock, productos, proveedores, orderpoints, movimientos. |
 | **Propuesta** | Calcular stock sugerido, traspasos, pedido final y reportes. Sin escribir en Odoo. |
+| **Carga en módulo Traspasos** | MCP sube plan `por_proveedor` a `x_traspasos` como `borrador`. Vendedoras comentan y ajustan `cantidad_final`. Sin generar pickings aún. |
+| **Generación de Traspasos** | Solo el generador de pickings: tras marcar filas como `verificado`, ejecuta `traspasos_generar_pickings` → crea `stock.picking` en borrador en lote. |
 | **Carga en módulo Pedidos** | Subir resultados del Paso 3 a `x_pedidos` para revisión. Sin confirmar en Reabastecimiento. |
 | **Actualización en Reabastecimiento** | Solo Daniel puede ejecutar esta acción masiva después de aprobación de tiendas. |
 
@@ -426,13 +439,18 @@ Cuando el usuario dice "Claude, prepara el pedido de PROVEEDOR de MES":
 4. Consultar orderpoints actuales y existencia por tienda (`stock.warehouse.orderpoint` + `arsabe_quant`).
 5. Calcular stock sugerido — Paso 1 (rotación, catálogo ABC, patrones, nuevo máximo).
 6. Verificar si CEDIS puede surtir antes de proponer traspasos.
-7. Proponer traspasos — Paso 2 (CEDIS → Rezagadas/Críticas → excedentes Activos).
-8. Calcular existencia después de traspasos.
-9. Calcular pedido final al proveedor — Paso 3.
-10. Mostrar resumen ejecutivo y pedir aprobación.
-11. Subir resultados al módulo `x_pedidos`.
-12. Cuando Daniel apruebe: actualizar `stock.warehouse.orderpoint`.
-13. Generar Excels (Pasos 1-4) y registrar en bitácora.
+7. Calcular plan de traspasos — Paso 2 (CEDIS → Rezagadas/Críticas → excedentes Activos).
+8. **Cargar plan a `x_traspasos`** (`traspasos_cargar_modulo`) como filas `por_proveedor` en estado `borrador`. → PAUSA.
+9. **[PAUSA — Revisión de vendedoras]** Cada vendedora ve las filas que afectan a su tienda, agrega comentarios y ajusta `cantidad_final` si es necesario. También pueden existir filas `por_encargo` cargadas manualmente por Daniel.
+10. **[PAUSA — Verificación del generador de pickings]** El generador de pickings revisa el lote, hace ajustes finales en `cantidad_final` y marca filas como `verificado`.
+11. Cuando todo está verificado: `traspasos_generar_pickings` crea `stock.picking` en borrador en Odoo en lote. Las filas pasan a `ejecutado`.
+12. Las vendedoras hacen la salida/entrada físicamente en Odoo. El MCP no auto-valida pickings.
+13. Leer `x_traspasos` con `state=verificado` para calcular `existencia_despues_traspasos` (usa `cantidad_final`).
+14. Calcular pedido final al proveedor — Paso 3 (`qty_to_order = max(0, nuevo_max - existencia_despues)`).
+15. Mostrar resumen ejecutivo y pedir aprobación.
+16. Subir resultados al módulo `x_pedidos`.
+17. Cuando Daniel apruebe: actualizar `stock.warehouse.orderpoint`.
+18. Generar Excels (Pasos 1-4) y registrar en bitácora.
 
 ---
 
@@ -452,10 +470,16 @@ Cuando el usuario dice "Claude, prepara el pedido de PROVEEDOR de MES":
 2. `src/tools/compras.py` — `compras_get_ventas_anio`, `compras_get_orderpoints`, `compras_calcular_stock_sugerido`, `compras_get_calendario`
 3. Prueba: Claude pregunta el stock sugerido de un proveedor real.
 
-### Sprint 3 — Motor de traspasos
-4. `src/engines/transfer_planner.py` — `TransferPlanner.calcular_plan(productos, tiendas, quants)`
-5. `src/tools/traspasos.py` — `traspasos_verificar_cedis`, `traspasos_calcular_plan`, `traspasos_crear_borrador`, `traspasos_validar`
-6. Prueba: Claude propone traspasos para un proveedor.
+### Sprint 3 — Motor de traspasos (COMPLETADO — pendiente adaptar a nuevo flujo)
+- [x] `src/engines/transfer_planner.py` — `TransferPlanner.calcular_plan(productos, tiendas, quants)`
+- [x] `src/tools/traspasos.py` — `traspasos_verificar_cedis`, `traspasos_calcular_plan`
+- [x] `traspasos_crear_borrador` — DEPRECADO. Reemplazado por `traspasos_cargar_modulo` (Sprint 5b)
+- [x] `traspasos_validar` — DEPRECADO. Reemplazado por `traspasos_generar_pickings` (Sprint 5b)
+- [ ] **Sprint 5b** — adaptar al nuevo flujo con módulo x_traspasos:
+  - `traspasos_cargar_modulo` → carga filas `por_proveedor` en `x_traspasos` con `state=borrador`
+  - `traspasos_get_estado` → consulta borradores/verificados/comentarios por proveedor
+  - `traspasos_generar_pickings` → lee `state=verificado` → crea `stock.picking` en borrador en lote
+  - Módulo Odoo `x_traspasos`: campo `tipo` (por_proveedor/por_encargo), estados (borrador/verificado/ejecutado/cancelado), roles (vendedora/generador), dos vistas (activa/historial)
 
 ### Sprint 4 — Pedido final + Excel + Pedidos
 7. `src/engines/orderpoint_updater.py` — `OrderpointUpdater.calcular_paso3(paso1, paso2)`
