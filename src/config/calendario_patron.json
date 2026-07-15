@@ -1,0 +1,517 @@
+{
+  "proveedores": {
+    ". REDNA": {
+      "dias": [
+        16
+      ],
+      "frecuencia": "mensual"
+    },
+    ": NO PEDIR": {
+      "dias": [
+        6
+      ],
+      "frecuencia": "mensual"
+    },
+    ": NO PEDIR TODAVIA": {
+      "dias": [
+        7
+      ],
+      "frecuencia": "mensual"
+    },
+    "AARO": {
+      "dias": [
+        14
+      ],
+      "frecuencia": "mensual"
+    },
+    "AARO NATURAL": {
+      "dias": [
+        19
+      ],
+      "frecuencia": "mensual"
+    },
+    "ARQ. MORALES": {
+      "dias": [
+        20
+      ],
+      "frecuencia": "mensual"
+    },
+    "AYAHUASCA": {
+      "dias": [
+        21
+      ],
+      "frecuencia": "mensual"
+    },
+    "AZTECA": {
+      "dias": [
+        28
+      ],
+      "frecuencia": "mensual"
+    },
+    "B'GRAAN": {
+      "dias": [
+        29
+      ],
+      "frecuencia": "mensual"
+    },
+    "BIONUTREX": {
+      "dias": [
+        15
+      ],
+      "frecuencia": "mensual"
+    },
+    "CAALFRABET": {
+      "dias": [
+        11
+      ],
+      "frecuencia": "mensual"
+    },
+    "CACAOKAN": {
+      "dias": [
+        17
+      ],
+      "frecuencia": "mensual"
+    },
+    "COHONASA": {
+      "dias": [
+        15
+      ],
+      "frecuencia": "mensual"
+    },
+    "COHONASA/BIONUTREX": {
+      "dias": [
+        16
+      ],
+      "frecuencia": "mensual"
+    },
+    "COLPAC": {
+      "dias": [
+        3,
+        17
+      ],
+      "frecuencia": "quincenal"
+    },
+    "COLPAC. REDNA": {
+      "dias": [
+        3,
+        10
+      ],
+      "frecuencia": "quincenal"
+    },
+    "CRITAB": {
+      "dias": [
+        22
+      ],
+      "frecuencia": "mensual"
+    },
+    "D. GOLD": {
+      "dias": [
+        4
+      ],
+      "frecuencia": "mensual"
+    },
+    "DERMA SPA": {
+      "dias": [
+        6
+      ],
+      "frecuencia": "mensual"
+    },
+    "DISTRIBUIDORA G.": {
+      "dias": [
+        9
+      ],
+      "frecuencia": "mensual"
+    },
+    "DISTRIBUIDORA GOLD": {
+      "dias": [
+        5
+      ],
+      "frecuencia": "mensual"
+    },
+    "DIVINA": {
+      "dias": [
+        6
+      ],
+      "frecuencia": "mensual"
+    },
+    "DONSOL": {
+      "dias": [
+        16
+      ],
+      "frecuencia": "mensual"
+    },
+    "DULET": {
+      "dias": [
+        24
+      ],
+      "frecuencia": "mensual"
+    },
+    "DULLET": {
+      "dias": [
+        24
+      ],
+      "frecuencia": "mensual"
+    },
+    "DXN": {
+      "dias": [
+        4,
+        10,
+        23
+      ],
+      "frecuencia": "quincenal"
+    },
+    "EDAD CERO": {
+      "dias": [
+        29
+      ],
+      "frecuencia": "mensual"
+    },
+    "EL OTRO": {
+      "dias": [
+        24
+      ],
+      "frecuencia": "mensual"
+    },
+    "EL ROSARIO": {
+      "dias": [
+        24
+      ],
+      "frecuencia": "mensual"
+    },
+    "FLOR DE ALOE": {
+      "dias": [
+        20
+      ],
+      "frecuencia": "mensual"
+    },
+    "GENESIS": {
+      "dias": [
+        24
+      ],
+      "frecuencia": "mensual"
+    },
+    "GENSIS": {
+      "dias": [
+        8,
+        22
+      ],
+      "frecuencia": "quincenal"
+    },
+    "GRANOLA G.": {
+      "dias": [
+        10
+      ],
+      "frecuencia": "mensual"
+    },
+    "GRANOLA GOURMET": {
+      "dias": [
+        11
+      ],
+      "frecuencia": "mensual"
+    },
+    "HOLISTIC": {
+      "dias": [
+        3
+      ],
+      "frecuencia": "mensual"
+    },
+    "IBIZA GOLD": {
+      "dias": [
+        8
+      ],
+      "frecuencia": "mensual"
+    },
+    "INQUIETA": {
+      "dias": [
+        29
+      ],
+      "frecuencia": "mensual"
+    },
+    "KANEK": {
+      "dias": [
+        14
+      ],
+      "frecuencia": "mensual"
+    },
+    "KOKUSAI": {
+      "dias": [
+        11
+      ],
+      "frecuencia": "mensual"
+    },
+    "MALANGA": {
+      "dias": [
+        23
+      ],
+      "frecuencia": "mensual"
+    },
+    "MALANGAS": {
+      "dias": [
+        13
+      ],
+      "frecuencia": "mensual"
+    },
+    "MERZA": {
+      "dias": [
+        19
+      ],
+      "frecuencia": "mensual"
+    },
+    "MEZA": {
+      "dias": [
+        2
+      ],
+      "frecuencia": "mensual"
+    },
+    "MUNDO NATURAL": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "OCCID./GUAJE": {
+      "dias": [
+        24
+      ],
+      "frecuencia": "mensual"
+    },
+    "OCCIDENTE/ GUAJE": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "OCCIDENTE/GUAJE": {
+      "dias": [
+        23
+      ],
+      "frecuencia": "mensual"
+    },
+    "OCOTZOTL": {
+      "dias": [
+        20
+      ],
+      "frecuencia": "mensual"
+    },
+    "OMNILIFE": {
+      "dias": [
+        8,
+        13,
+        24
+      ],
+      "frecuencia": "quincenal"
+    },
+    "PAHTLY": {
+      "dias": [
+        18
+      ],
+      "frecuencia": "mensual"
+    },
+    "PETEN": {
+      "dias": [
+        29
+      ],
+      "frecuencia": "mensual"
+    },
+    "PLAMESI": {
+      "dias": [
+        28
+      ],
+      "frecuencia": "mensual"
+    },
+    "PRONASOYA 1": {
+      "dias": [
+        4
+      ],
+      "frecuencia": "mensual"
+    },
+    "PRONASOYA 2": {
+      "dias": [
+        24
+      ],
+      "frecuencia": "mensual"
+    },
+    "PRONAT": {
+      "dias": [
+        14
+      ],
+      "frecuencia": "mensual"
+    },
+    "PROSA": {
+      "dias": [
+        7
+      ],
+      "frecuencia": "mensual"
+    },
+    "QUALI": {
+      "dias": [
+        5
+      ],
+      "frecuencia": "mensual"
+    },
+    "QUIMICOS": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "RAPIFRUT": {
+      "dias": [
+        20
+      ],
+      "frecuencia": "mensual"
+    },
+    "RED NATURA": {
+      "dias": [
+        3,
+        20
+      ],
+      "frecuencia": "quincenal"
+    },
+    "RICHEST": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "RM FLEX": {
+      "dias": [
+        6
+      ],
+      "frecuencia": "mensual"
+    },
+    "RM+FLEX": {
+      "dias": [
+        2
+      ],
+      "frecuencia": "mensual"
+    },
+    "RMFLEX": {
+      "dias": [
+        1
+      ],
+      "frecuencia": "mensual"
+    },
+    "SAN RO": {
+      "dias": [
+        13
+      ],
+      "frecuencia": "mensual"
+    },
+    "SANDY": {
+      "dias": [
+        15
+      ],
+      "frecuencia": "mensual"
+    },
+    "SANOL": {
+      "dias": [
+        21
+      ],
+      "frecuencia": "mensual"
+    },
+    "SELTROX": {
+      "dias": [
+        18
+      ],
+      "frecuencia": "mensual"
+    },
+    "SEMILLAS": {
+      "dias": [
+        23
+      ],
+      "frecuencia": "mensual"
+    },
+    "SMN": {
+      "dias": [
+        4
+      ],
+      "frecuencia": "mensual"
+    },
+    "SOYAQUARIUS": {
+      "dias": [
+        5
+      ],
+      "frecuencia": "mensual"
+    },
+    "SOYAQUARIUS F": {
+      "dias": [
+        10
+      ],
+      "frecuencia": "mensual"
+    },
+    "SOYAQUARIUS F.": {
+      "dias": [
+        14
+      ],
+      "frecuencia": "mensual"
+    },
+    "SUPRA": {
+      "dias": [
+        18
+      ],
+      "frecuencia": "mensual"
+    },
+    "TECNU AMP, JUMBO": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "TECNUTRITIONS": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "TEPEHUANI": {
+      "dias": [
+        12
+      ],
+      "frecuencia": "mensual"
+    },
+    "TONICOL": {
+      "dias": [
+        6,
+        20
+      ],
+      "frecuencia": "quincenal"
+    },
+    "TROPICAL HONEY": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "ULTRA SOYA": {
+      "dias": [
+        9
+      ],
+      "frecuencia": "mensual"
+    },
+    "VITAL HEALT": {
+      "dias": [
+        15
+      ],
+      "frecuencia": "mensual"
+    },
+    "VIVRA": {
+      "dias": [
+        11
+      ],
+      "frecuencia": "mensual"
+    },
+    "XILOU": {
+      "dias": [
+        26
+      ],
+      "frecuencia": "mensual"
+    },
+    "ZACATLAN": {
+      "dias": [
+        11
+      ],
+      "frecuencia": "mensual"
+    }
+  }
+}

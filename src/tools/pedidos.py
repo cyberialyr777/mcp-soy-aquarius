@@ -154,14 +154,20 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             orderpoints_raw = odoo.search_read(
                 "stock.warehouse.orderpoint",
                 [["product_id", "in", product_ids]],
-                ["id", "product_id", "location_id", "product_min_qty", "product_max_qty"],
+                ["id", "product_id", "location_id", "warehouse_id",
+                 "product_min_qty", "product_max_qty"],
                 limit=0,
             )
+            wh_ids = list({op["warehouse_id"][0] for op in orderpoints_raw if op.get("warehouse_id")})
+            wh_codes = {w["id"]: (w.get("code") or "") for w in odoo.search_read(
+                "stock.warehouse", [["id", "in", wh_ids]], ["id", "code"], limit=0)}
             orderpoints = [
                 {
                     "id": op["id"],
                     "product_id": op["product_id"][0] if op["product_id"] else None,
                     "location": op["location_id"][1] if op["location_id"] else "",
+                    "almacen": op["warehouse_id"][1] if op["warehouse_id"] else "",
+                    "codigo": wh_codes.get(op["warehouse_id"][0], "") if op.get("warehouse_id") else "",
                 }
                 for op in orderpoints_raw
             ]

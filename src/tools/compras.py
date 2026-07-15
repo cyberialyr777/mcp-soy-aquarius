@@ -11,6 +11,7 @@ Helper público reutilizable por Sprint 3:
 """
 import json
 import logging
+from datetime import date, timedelta
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
@@ -26,7 +27,9 @@ from src.engines.purchase_planner import PurchasePlanner, VentaMes, StockQuant
 
 logger = logging.getLogger(__name__)
 
-_CALENDARIO_PATH = Path(__file__).parent.parent / "config" / "calendario_pedidos.json"
+_PATRON_PATH = Path(__file__).parent.parent / "config" / "calendario_patron.json"
+_MESES_VENTANA = 12  # meses sintetizados hacia adelante desde el mes actual
+_DIAS_SEMANA = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"]
 
 
 def _err(e: Exception) -> str:
@@ -35,9 +38,38 @@ def _err(e: Exception) -> str:
     return f"Error inesperado ({type(e).__name__}): {e}"
 
 
-def _get_calendario() -> dict:
-    """Carga el calendario de pedidos desde el JSON generado del Excel."""
-    return json.loads(_CALENDARIO_PATH.read_text(encoding="utf-8"))
+def _fecha_valida(anio: int, mes: int, dia: int) -> date:
+    """Ajusta el día al rango del mes y mueve domingos a lunes (no se pide en domingo)."""
+    ultimo = (date(anio + (mes == 12), (mes % 12) + 1, 1) - timedelta(days=1)).day
+    d = date(anio, mes, min(dia, ultimo))
+    if d.weekday() == 6:  # domingo
+        d += timedelta(days=1)
+    return d
+
+
+def _get_calendario(hoy: date | None = None) -> dict:
+    """Sintetiza el calendario desde el patrón fijo por proveedor (calendario_patron.json).
+
+    Genera una ventana móvil de _MESES_VENTANA meses a partir del mes actual, así que
+    funciona para cualquier mes de cualquier año sin regenerar nada. Mismo schema que
+    antes: {mes_iso: {"nombre_hoja": str, "pedidos": {proveedor: [{dia, dia_semana}]}}}.
+    """
+    patron = json.loads(_PATRON_PATH.read_text(encoding="utf-8"))["proveedores"]
+    hoy = hoy or date.today()
+    calendario = {}
+    for i in range(_MESES_VENTANA):
+        m = hoy.month - 1 + i
+        anio, mes = hoy.year + m // 12, m % 12 + 1
+        mes_iso = f"{anio}-{mes:02d}"
+        pedidos = {}
+        for name, info in patron.items():
+            fechas = [
+                {"dia": (d := _fecha_valida(anio, mes, dia)).day, "dia_semana": _DIAS_SEMANA[d.weekday()]}
+                for dia in info["dias"]
+            ]
+            pedidos[name] = sorted(fechas, key=lambda f: f["dia"])
+        calendario[mes_iso] = {"nombre_hoja": mes_iso, "pedidos": pedidos}
+    return calendario
 
 
 def _buscar_proveedor_en_calendario(calendario: dict, proveedor: str) -> dict[str, list]:
@@ -557,10 +589,11 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
         },
     )
     def compras_get_calendario(params: ComprasGetCalendarioInput) -> str:
-        """Retorna el calendario de pedidos del proveedor con fechas reales por mes.
+        """Retorna el calendario de pedidos del proveedor para los próximos 12 meses.
 
-        Lee src/config/calendario_pedidos.json (generado del Excel 'CALENDARIO Y DIRECTORIO PEDIDOS').
-        Muestra en qué días de cada mes está programado el pedido del proveedor.
+        Sintetiza las fechas desde el patrón fijo por proveedor (src/config/calendario_patron.json,
+        derivado del Excel con scripts/generar_calendario_patron.py). Funciona para cualquier
+        mes/año. Muestra en qué días de cada mes está programado el pedido del proveedor.
 
         Args:
             params: proveedor (str)
