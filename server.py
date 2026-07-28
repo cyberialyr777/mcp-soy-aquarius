@@ -21,7 +21,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("soyaquarius_mcp")
+mcp = FastMCP(
+    "soyaquarius_mcp",
+    host=settings.MCP_HOST,
+    port=settings.MCP_PORT,
+    stateless_http=True,
+)
 
 
 def _build_server() -> None:
@@ -44,7 +49,7 @@ def _build_server() -> None:
 
 def main() -> None:
     _build_server()
-    mcp.run()
+    mcp.run(transport=settings.MCP_TRANSPORT)
 
 
 if __name__ == "__main__":

@@ -16,6 +16,12 @@ class Settings:
     _raw_output = Path(os.getenv("OUTPUT_DIR", str(_PROJECT_ROOT / "outputs")))
     OUTPUT_DIR: Path = _raw_output if _raw_output.is_absolute() else _PROJECT_ROOT / _raw_output
 
+    # Transporte MCP. streamable-http = servidor remoto (default, detrás de reverse
+    # proxy — ver DEPLOY_SERVIDOR.md). stdio = local (Claude Desktop misma máquina).
+    MCP_TRANSPORT: str = os.getenv("MCP_TRANSPORT", "streamable-http")
+    MCP_HOST: str = os.getenv("MCP_HOST", "127.0.0.1")
+    MCP_PORT: int = int(os.getenv("MCP_PORT", "8080"))
+
     @classmethod
     def validate(cls) -> None:
         missing = [
