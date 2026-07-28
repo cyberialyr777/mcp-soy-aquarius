@@ -43,6 +43,7 @@ htmlcov/
 # Documentos internos (no versionar)
 scripts/prompt_guia_usuario.md
 PROPUESTA_TECNICA.md
+CLAUDE.md
 
 # Claude Code (machine-specific)
 .agents/
