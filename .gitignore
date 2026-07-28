@@ -40,8 +40,9 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Prompt guía de usuario (no versionar)
+# Documentos internos (no versionar)
 scripts/prompt_guia_usuario.md
+PROPUESTA_TECNICA.md
 
 # Claude Code (machine-specific)
 .agents/
