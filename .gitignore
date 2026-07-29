@@ -2,6 +2,10 @@
 .env
 *.env
 
+# Certificados TLS (nunca versionar)
+nginx/certs/
+*.pem
+
 # Python
 __pycache__/
 *.py[cod]

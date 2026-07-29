@@ -1,0 +1,42 @@
+# Plantilla nginx. La imagen oficial corre envsubst y reemplaza ${MCP_TOKEN}
+# (limitado por NGINX_ENVSUBST_FILTER), luego coloca el resultado en conf.d/.
+
+# Valida el header Authorization contra el token compartido.
+map $http_authorization $token_ok {
+    default                      0;
+    "Bearer ${MCP_TOKEN}"        1;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name _;
+
+    ssl_certificate     /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+
+    # El endpoint del MCP (FastMCP streamable-http) es /mcp, no /.
+    location /mcp {
+        if ($token_ok = 0) {
+            return 401;
+        }
+
+        proxy_pass http://mcp:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # streamable-http mantiene la conexión abierta (SSE): no bufferizar y timeouts largos.
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # Cualquier otra ruta: fuera.
+    location / {
+        return 404;
+    }
+}

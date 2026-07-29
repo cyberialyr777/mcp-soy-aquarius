@@ -1,0 +1,56 @@
+# Stack de producción: MCP (interno) + nginx (única cara pública, TLS + Bearer token).
+#
+# Seguridad clave:
+#   - El contenedor 'mcp' NO publica puertos al host (no hay 'ports:').
+#     Solo existe en la red interna de Docker; el LAN no lo ve.
+#   - nginx es lo único expuesto (443) y valida el token antes de reenviar.
+#
+# Antes de levantar:
+#   1) Copia .env.example a .env y llena Odoo + MCP_TOKEN.
+#   2) Pon los certificados en ./nginx/certs/ (fullchain.pem y privkey.pem).
+#      LAN con IP: self-signed (ver DEPLOY_DOCKER.md).
+#   3) docker compose up -d --build
+
+services:
+  mcp:
+    build: .
+    image: soyaquarius-mcp:latest
+    container_name: soyaquarius-mcp
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Forzamos que escuche en toda la red del contenedor (no 127.0.0.1),
+      # para que nginx lo alcance por el nombre de servicio 'mcp'.
+      MCP_TRANSPORT: streamable-http
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: "8080"
+    # SIN 'ports:' -> el puerto 8080 solo vive en la red interna 'internal'.
+    networks: [internal]
+    # ¿Odoo corre como servicio NATIVO en el host (no en Docker)?
+    # Descomenta esto y en .env pon ODOO_URL=http://host.docker.internal:8069
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    #
+    # ¿Odoo también está en Docker? Conéctalo a esta misma red y usa
+    # ODOO_URL=http://<nombre-del-servicio-odoo>:8069
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: soyaquarius-nginx
+    restart: unless-stopped
+    depends_on: [mcp]
+    ports:
+      - "443:443"
+    environment:
+      # El token se toma de .env (interpolación de compose). Falla si no está definido.
+      MCP_TOKEN: ${MCP_TOKEN:?define MCP_TOKEN en .env}
+      # Solo se sustituye ${MCP_TOKEN} en la plantilla; $host, $http_authorization, etc. quedan intactos.
+      NGINX_ENVSUBST_FILTER: MCP_TOKEN
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks: [internal]
+
+networks:
+  internal:
+    driver: bridge

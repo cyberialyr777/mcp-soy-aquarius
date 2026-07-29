@@ -12,7 +12,7 @@ from mcp.server.fastmcp import FastMCP
 
 from src.config.settings import settings
 from src.odoo.connector import OdooConnector, OdooConnectionError
-from src.tools import generic, compras, traspasos, pedidos, reportes, audit
+from src.tools import generic, compras, traspasos, pedidos, audit
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,11 +39,10 @@ def _build_server() -> None:
     compras.register(mcp, odoo)
     traspasos.register(mcp, odoo)
     pedidos.register(mcp, odoo)
-    reportes.register(mcp, odoo)
     audit.register(mcp, odoo)
 
     logger.info(
-        "soyaquarius_mcp iniciado. Tools: genericos, compras, traspasos, pedidos, reportes, audit."
+        "soyaquarius_mcp iniciado. Tools: genericos, compras, traspasos, pedidos, audit."
     )
 
 

@@ -1,0 +1,29 @@
+# Secretos y salidas: NUNCA dentro de la imagen
+.env
+*.env
+outputs/
+audit_logs/
+*.xlsx
+
+# Git / IDE / caches
+.git/
+.gitignore
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docs internos y config de Claude
+.agents/
+.claude/
+skills-lock.json
+CLAUDE.md
+PROPUESTA_TECNICA.md
+scripts/prompt_guia_usuario.md
+
+# El propio stack de docker no hace falta dentro de la imagen
+nginx/
+docker-compose.yml
