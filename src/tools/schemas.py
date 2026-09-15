@@ -3,6 +3,8 @@
 Separados de generic.py para que los tests puedan importarlos
 sin necesitar el módulo `mcp`.
 """
+from typing import Literal
+
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -128,6 +130,13 @@ class TraspasosCargarModuloInput(BaseModel):
         ),
     )
     origen_referencia: str = Field(default="", description="Referencia del lote (ej. 'DONSOL-JUN-2026')")
+    tipo: Literal["por_proveedor", "por_encargo"] = Field(
+        default="por_proveedor",
+        description=(
+            "Tipo de traspaso. 'por_proveedor' (default) = calculado por el ciclo de "
+            "compras. 'por_encargo' = movimiento puntual entre tiendas, fuera del ciclo."
+        ),
+    )
 
 
 class TraspasosGetEstadoInput(BaseModel):

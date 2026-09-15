@@ -334,7 +334,9 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
 
         Args:
             params: proveedor, lineas_json (JSON del array 'lineas' de traspasos_calcular_plan),
-                    origen_referencia (opcional — etiqueta del lote, ej. 'DONSOL-JUN-2026')
+                    origen_referencia (opcional — etiqueta del lote, ej. 'DONSOL-JUN-2026'),
+                    tipo (opcional — 'por_proveedor' por defecto, o 'por_encargo' para
+                    movimientos puntuales entre tiendas fuera del ciclo de compras)
 
         Returns:
             JSON con schema:
@@ -343,7 +345,8 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 "ids": [int],
                 "errores": [str],
                 "proveedor": str,
-                "origen_referencia": str
+                "origen_referencia": str,
+                "tipo": str
             }
         """
         try:
@@ -366,7 +369,7 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             for linea in lineas:
                 try:
                     rec_id = odoo.create("x_traspasos", {
-                        "tipo": "por_proveedor",
+                        "tipo": params.tipo,
                         "proveedor": params.proveedor,
                         "product_id": linea["product_id"],
                         "origen": linea["origen"],
@@ -392,6 +395,7 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 "errores": errores,
                 "proveedor": params.proveedor,
                 "origen_referencia": referencia,
+                "tipo": params.tipo,
             }, ensure_ascii=False)
 
         except Exception as e:
@@ -509,8 +513,15 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
         cantidad_propuesta). Después las deja en state='ejecutado' con ambos pickings
         vinculados (picking_id = salida, picking_entrada_id = recepción).
 
-        Las vendedoras hacen la salida y la entrada físicamente en Odoo — este tool
-        NO valida pickings. Solo debe ejecutarlo el generador de pickings.
+        Las filas con cantidad_final en 0 se omiten y se reportan en 'lineas_en_cero':
+        poner 0 es como una vendedora cancela una línea, así que no se le crea
+        movimiento ni se marca ejecutada — se queda en 'verificado' para cancelarla
+        a mano.
+
+        Los pickings se confirman (action_confirm), así que salen de borrador y
+        quedan EN ESPERA para ambas tiendas. Confirmar no mueve mercancía: la salida
+        y la entrada físicas las siguen haciendo las vendedoras, y este tool NUNCA
+        valida un picking. Solo debe ejecutarlo el generador de pickings.
 
         Args:
             params: proveedor (str), origen_referencia (str, opcional)
@@ -519,12 +530,16 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             JSON con schema:
             {
                 "pickings_creados": [
-                    {"picking_salida_id": int, "picking_salida": str,
-                     "picking_entrada_id": int, "picking_entrada": str,
+                    {"picking_salida_id": int, "picking_salida": str, "estado_salida": str,
+                     "picking_entrada_id": int, "picking_entrada": str, "estado_entrada": str,
                      "origen": str, "destino": str, "lineas": int}
                 ],
                 "filas_ejecutadas": int,
+                "lineas_en_cero": [
+                    {"fila_id": int, "product_id": int, "origen": str, "destino": str}
+                ],
                 "errores": [str],
+                "total_rutas": int,
                 "total_pickings": int
             }
         """
@@ -541,7 +556,9 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 return json.dumps({
                     "pickings_creados": [],
                     "filas_ejecutadas": 0,
+                    "lineas_en_cero": [],
                     "errores": [],
+                    "total_rutas": 0,
                     "total_pickings": 0,
                     "advertencia": f"No hay filas verificadas para '{params.proveedor}' en x_traspasos",
                 }, ensure_ascii=False)
@@ -583,16 +600,35 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 p["id"]: p["uom_id"][0] for p in products_data if p.get("uom_id")
             }
 
-            # Agrupar por (origen, destino)
+            # Agrupar por (origen, destino), dejando fuera lo que quedó en cero:
+            # poner 0 en cantidad_final es como una vendedora cancela una línea, así
+            # que no debe generar un movimiento vacío ni marcarse como ejecutada.
+            # La fila se queda en 'verificado' para que se cancele a mano.
             grupos: dict[tuple[str, str], list[dict]] = {}
+            lineas_en_cero: list[dict] = []
             for fila in filas_verificadas:
                 pid = fila["product_id"][0] if isinstance(fila["product_id"], list) else fila["product_id"]
+                cantidad = float(fila.get("cantidad_final") or 0)
+                if cantidad <= 0:
+                    lineas_en_cero.append({
+                        "fila_id": fila["id"],
+                        "product_id": pid,
+                        "origen": fila.get("origen", ""),
+                        "destino": fila.get("destino", ""),
+                    })
+                    continue
                 key = (fila["origen"], fila["destino"])
                 grupos.setdefault(key, []).append({
                     "fila_id": fila["id"],
                     "product_id": pid,
-                    "cantidad_final": float(fila.get("cantidad_final") or 0),
+                    "cantidad_final": cantidad,
                 })
+
+            if lineas_en_cero:
+                logger.info(
+                    "traspasos_generar_pickings: %d líneas en cero omitidas para %s",
+                    len(lineas_en_cero), params.proveedor,
+                )
 
             referencia = params.origen_referencia or _referencia_corrida(params.proveedor)
             pickings_creados = []
@@ -624,10 +660,13 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     lineas += 1
                 return pk_id, lineas
 
-            def _nombre_picking(pk_id: int) -> str:
+            def _datos_picking(pk_id: int) -> tuple[str, str]:
+                """(nombre, estado) del picking."""
                 datos = odoo.search_read(
-                    "stock.picking", [["id", "=", pk_id]], ["name"], limit=1)
-                return datos[0]["name"] if datos else str(pk_id)
+                    "stock.picking", [["id", "=", pk_id]], ["name", "state"], limit=1)
+                if not datos:
+                    return str(pk_id), ""
+                return datos[0]["name"], datos[0].get("state", "")
 
             for (origen, destino), grupo in grupos.items():
                 alm_origen = buscar_almacen(almacenes, origen)
@@ -666,6 +705,17 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 entrada_id, _ = _crear_picking(
                     tipo_entrada[0], transito_id, loc_destino_id, grupo)
 
+                # Confirmar los saca de borrador y los deja en espera, que es como
+                # las tiendas los ven en Odoo. NO los valida: el movimiento físico
+                # lo siguen haciendo las vendedoras.
+                try:
+                    odoo.call_method("stock.picking", "action_confirm", [salida_id, entrada_id])
+                except Exception as e_conf:
+                    errores.append(
+                        f"{origen} → {destino}: pickings creados pero no confirmados "
+                        f"({e_conf}). Quedan en borrador."
+                    )
+
                 fila_ids_grupo = [item["fila_id"] for item in grupo]
                 odoo.write("x_traspasos", fila_ids_grupo, {
                     "state": "ejecutado",
@@ -674,25 +724,29 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 })
                 ids_ejecutados.extend(fila_ids_grupo)
 
-                nombre_salida = _nombre_picking(salida_id)
-                nombre_entrada = _nombre_picking(entrada_id)
+                nombre_salida, estado_salida = _datos_picking(salida_id)
+                nombre_entrada, estado_entrada = _datos_picking(entrada_id)
                 pickings_creados.append({
                     "picking_salida_id": salida_id,
                     "picking_salida": nombre_salida,
+                    "estado_salida": estado_salida,
                     "picking_entrada_id": entrada_id,
                     "picking_entrada": nombre_entrada,
+                    "estado_entrada": estado_entrada,
                     "origen": origen,
                     "destino": destino,
                     "lineas": lineas_ok,
                 })
                 logger.info(
-                    "Traspaso %s → %s: salida %s, recepción %s (%d líneas)",
-                    origen, destino, nombre_salida, nombre_entrada, lineas_ok,
+                    "Traspaso %s → %s: salida %s (%s), recepción %s (%s), %d líneas",
+                    origen, destino, nombre_salida, estado_salida,
+                    nombre_entrada, estado_entrada, lineas_ok,
                 )
 
             return json.dumps({
                 "pickings_creados": pickings_creados,
                 "filas_ejecutadas": len(ids_ejecutados),
+                "lineas_en_cero": lineas_en_cero,
                 "errores": errores,
                 "total_rutas": len(pickings_creados),
                 "total_pickings": len(pickings_creados) * 2,   # salida + recepción
