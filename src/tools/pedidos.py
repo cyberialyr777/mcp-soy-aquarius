@@ -8,11 +8,15 @@ Tres tools:
 """
 import json
 import logging
-from collections import defaultdict
 
 from mcp.server.fastmcp import FastMCP
 
-from src.engines.orderpoint_updater import OrderpointUpdater, RegistroPedido
+from src.engines.orderpoint_updater import (
+    OrderpointUpdater,
+    RegistroPedido,
+    TraspasoConfirmado,
+    movimientos_pendientes,
+)
 from src.engines.transfer_planner import ResumenPostTraspaso
 from src.odoo.connector import OdooConnector, OdooConnectionError
 from src.tools.compras import calcular_sugeridos_proveedor, _get_product_ids_for_proveedor
@@ -31,36 +35,68 @@ def _err(e: Exception) -> str:
     return f"Error inesperado ({type(e).__name__}): {e}"
 
 
-def _leer_traspasos_verificados(
+def _id_de(valor) -> int | None:
+    """Extrae el id de un campo Many2one de Odoo: [id, nombre] → id."""
+    if isinstance(valor, list):
+        return valor[0] if valor else None
+    return valor or None
+
+
+def _leer_traspasos_confirmados(
     odoo: OdooConnector, proveedor: str
-) -> dict[tuple[int, str, str], float]:
-    """Lee x_traspasos (state=verificado|ejecutado) y retorna {(pid, origen, destino): cantidad_final}."""
+) -> list[TraspasoConfirmado]:
+    """Lee x_traspasos (verificado|ejecutado) junto con el estado real de sus pickings.
+
+    El estado de cada picking decide si la mercancía ya se movió. Sin eso, los
+    traspasos ya validados se aplicarían otra vez sobre una existencia que ya los
+    incluye — y los de todos los meses anteriores también.
+    """
+    campos = ["product_id", "origen", "destino", "cantidad_final",
+              "picking_id", "picking_entrada_id"]
     registros = odoo.search_read(
         "x_traspasos",
         [["proveedor", "=", proveedor], ["state", "in", ["verificado", "ejecutado"]]],
-        ["product_id", "origen", "destino", "cantidad_final"],
+        campos,
         limit=0,
     )
-    resultado: dict[tuple[int, str, str], float] = {}
+
+    picking_ids = {
+        pid for r in registros
+        for pid in (_id_de(r.get("picking_id")), _id_de(r.get("picking_entrada_id")))
+        if pid
+    }
+    estados: dict[int, str] = {}
+    if picking_ids:
+        estados = {
+            p["id"]: p.get("state", "")
+            for p in odoo.search_read(
+                "stock.picking", [["id", "in", list(picking_ids)]], ["id", "state"], limit=0)
+        }
+
+    confirmados: list[TraspasoConfirmado] = []
     for r in registros:
-        pid = r["product_id"][0] if isinstance(r.get("product_id"), list) else r.get("product_id")
-        if pid:
-            key = (pid, r.get("origen", ""), r.get("destino", ""))
-            resultado[key] = resultado.get(key, 0.0) + float(r.get("cantidad_final") or 0)
-    return resultado
+        pid = _id_de(r.get("product_id"))
+        if not pid:
+            continue
+        salida = _id_de(r.get("picking_id"))
+        entrada = _id_de(r.get("picking_entrada_id"))
+        confirmados.append(TraspasoConfirmado(
+            product_id=pid,
+            origen=r.get("origen", ""),
+            destino=r.get("destino", ""),
+            cantidad=float(r.get("cantidad_final") or 0),
+            estado_salida=estados.get(salida, "") if salida else "",
+            estado_entrada=estados.get(entrada, "") if entrada else "",
+        ))
+    return confirmados
 
 
 def _ajustar_existencia_con_traspasos(
     sugeridos_por_tienda: dict,
-    traspasos_verificados: dict[tuple[int, str, str], float],
+    traspasos: list[TraspasoConfirmado],
 ) -> list[ResumenPostTraspaso]:
-    """Aplica los traspasos verificados sobre la existencia del Paso 1 y retorna resumen."""
-    enviado: dict[tuple[int, str], float] = defaultdict(float)
-    recibido: dict[tuple[int, str], float] = defaultdict(float)
-
-    for (pid, origen, destino), cantidad in traspasos_verificados.items():
-        enviado[(pid, origen)] += cantidad
-        recibido[(pid, destino)] += cantidad
+    """Aplica sobre la existencia del Paso 1 solo los traspasos todavía pendientes."""
+    enviado, recibido = movimientos_pendientes(traspasos)
 
     resumen: list[ResumenPostTraspaso] = []
     for tienda, prods in sugeridos_por_tienda.items():
@@ -101,10 +137,15 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
 
         Flujo interno:
         1. Re-ejecuta Paso 1 (stock sugerido) para obtener nuevo_maximo y existencia_actual.
-        2. Lee x_traspasos con state=verificado|ejecutado para obtener traspasos confirmados.
-        3. Calcula existencia_despues usando cantidad_final de x_traspasos.
+        2. Lee x_traspasos con state=verificado|ejecutado junto con el estado de sus
+           pickings de salida y recepción.
+        3. Aplica SOLO los traspasos todavía pendientes: lo ya validado en Odoo ya
+           está reflejado en stock.quant y contarlo otra vez lo duplicaría. Cada lado
+           se evalúa aparte (la tienda origen saca la mercancía días antes de que la
+           destino la reciba), y los traspasos de meses anteriores quedan fuera solos.
         4. qty_to_order = max(0, nuevo_maximo − existencia_despues).
-        5. Crea registros en x_pedidos con state='pendiente'.
+        5. Carga en x_pedidos con state='pendiente'. Si ya hay un registro pendiente
+           del mismo producto y tienda, lo actualiza en vez de duplicarlo.
 
         Args:
             params: proveedor, fecha_inicio, fecha_fin, cedis_keyword (default='CEDIS')
@@ -114,6 +155,7 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             {
                 "proveedor": str,
                 "creados": int,
+                "actualizados": int,
                 "ids": [int],
                 "registros": [
                     {
@@ -140,14 +182,15 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 return json.dumps({
                     "proveedor": params.proveedor,
                     "creados": 0,
+                    "actualizados": 0,
                     "ids": [],
                     "registros": [],
                     "errores": [],
                     "advertencia": "No se encontraron ventas del proveedor en el periodo",
                 }, ensure_ascii=False)
 
-            traspasos_verificados = _leer_traspasos_verificados(odoo, params.proveedor)
-            resumen = _ajustar_existencia_con_traspasos(sugeridos_por_tienda, traspasos_verificados)
+            traspasos = _leer_traspasos_confirmados(odoo, params.proveedor)
+            resumen = _ajustar_existencia_con_traspasos(sugeridos_por_tienda, traspasos)
 
             # Cargar orderpoints para obtener IDs
             product_ids, _ = _get_product_ids_for_proveedor(odoo, params.proveedor)
@@ -175,7 +218,24 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             updater = OrderpointUpdater()
             paso3 = updater.calcular_paso3(resumen, orderpoints, params.cedis_keyword)
 
+            # Registros pendientes de una corrida anterior del mismo proveedor, para
+            # actualizarlos en vez de duplicarlos. Los que no tienen orderpoint no se
+            # pueden identificar por tienda (x_pedidos no guarda la tienda), así que
+            # esos sí se vuelven a crear.
+            pendientes_previos: dict[tuple[int, int | None], int] = {}
+            for prev in odoo.search_read(
+                "x_pedidos",
+                [["proveedor", "=", params.proveedor], ["state", "=", "pendiente"]],
+                ["id", "product_id", "orderpoint_id"],
+                limit=0,
+            ):
+                op_prev = _id_de(prev.get("orderpoint_id"))
+                pid_prev = _id_de(prev.get("product_id"))
+                if pid_prev and op_prev:
+                    pendientes_previos.setdefault((pid_prev, op_prev), prev["id"])
+
             ids_creados = []
+            ids_actualizados = []
             errores = []
             registros_json = []
 
@@ -192,34 +252,44 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     "rotacion": r.rotacion,
                     "abc": r.abc,
                 })
+                valores = {
+                    "proveedor": params.proveedor,
+                    "product_id": r.product_id,
+                    "orderpoint_id": r.orderpoint_id,
+                    "product_min_qty": r.nuevo_minimo,
+                    "product_max_qty": r.nuevo_maximo,
+                    "propuesta_max": r.nuevo_maximo,
+                    "qty_to_order": r.qty_to_order,
+                    "existencia_antes": r.existencia_antes,
+                    "existencia_despues": r.existencia_despues,
+                    "rotacion": r.rotacion,
+                    "abc": r.abc,
+                    "state": "pendiente",
+                }
                 try:
-                    rec_id = odoo.create("x_pedidos", {
-                        "proveedor": params.proveedor,
-                        "product_id": r.product_id,
-                        "orderpoint_id": r.orderpoint_id,
-                        "product_min_qty": r.nuevo_minimo,
-                        "product_max_qty": r.nuevo_maximo,
-                        "propuesta_max": r.nuevo_maximo,
-                        "qty_to_order": r.qty_to_order,
-                        "existencia_antes": r.existencia_antes,
-                        "existencia_despues": r.existencia_despues,
-                        "rotacion": r.rotacion,
-                        "abc": r.abc,
-                        "state": "pendiente",
-                    })
-                    ids_creados.append(rec_id)
+                    # Si ya hay un registro pendiente de este producto y tienda, se
+                    # actualiza. Crear otro dejaría dos versiones del mismo pedido
+                    # conviviendo, y al aprobar ambas escribirían sobre el mismo
+                    # orderpoint.
+                    existente = pendientes_previos.get((r.product_id, r.orderpoint_id))
+                    if existente:
+                        odoo.write("x_pedidos", [existente], valores)
+                        ids_actualizados.append(existente)
+                    else:
+                        ids_creados.append(odoo.create("x_pedidos", valores))
                 except Exception as e_inner:
                     errores.append(f"{r.nombre} @ {r.tienda}: {e_inner}")
 
             logger.info(
-                "pedidos_crear_registros: %d registros en x_pedidos para %s",
-                len(ids_creados), params.proveedor,
+                "pedidos_crear_registros: %d creados y %d actualizados en x_pedidos para %s",
+                len(ids_creados), len(ids_actualizados), params.proveedor,
             )
 
             return json.dumps({
                 "proveedor": params.proveedor,
                 "creados": len(ids_creados),
-                "ids": ids_creados,
+                "actualizados": len(ids_actualizados),
+                "ids": ids_creados + ids_actualizados,
                 "registros": registros_json,
                 "errores": errores,
             }, ensure_ascii=False)

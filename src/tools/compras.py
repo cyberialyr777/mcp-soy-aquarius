@@ -11,11 +11,18 @@ Helper público reutilizable por Sprint 3:
 """
 import json
 import logging
+from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+from src.odoo.almacenes import (
+    buscar_almacen,
+    cargar_almacenes,
+    prefijo_ubicacion,
+    prefijos_por_tienda,
+)
 from src.odoo.connector import OdooConnector, OdooConnectionError
 from src.tools.schemas import (
     ComprasGetVentasAnioInput,
@@ -23,7 +30,12 @@ from src.tools.schemas import (
     ComprasCalcularStockSugeridoInput,
     ComprasGetCalendarioInput,
 )
-from src.engines.purchase_planner import PurchasePlanner, VentaMes, StockQuant
+from src.engines.purchase_planner import (
+    PurchasePlanner,
+    StockQuant,
+    VentaMes,
+    meses_del_periodo,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +188,44 @@ def _get_orders_in_period(
     }
 
 
+def _ultimas_entradas(
+    odoo: OdooConnector, product_ids: list[int], desde: str
+) -> dict[tuple[int, str], str]:
+    """{(product_id, prefijo_almacén): fecha de la última entrada} desde stock.move.
+
+    `stock.quant.in_date` desaparece cuando el quant se borra al quedar en cero — y
+    esos son justo los productos donde importa saber cuándo entraron, porque son los
+    candidatos a stockout.
+    """
+    try:
+        movimientos = odoo.search_read(
+            "stock.move",
+            [
+                ["product_id", "in", product_ids],
+                ["state", "=", "done"],
+                ["date", ">=", desde + " 00:00:00"],
+                ["location_dest_id.usage", "=", "internal"],
+            ],
+            ["product_id", "location_dest_id", "date"],
+            limit=0,
+        )
+    except Exception as exc:
+        logger.warning("No se pudieron leer las entradas de stock.move: %s", exc)
+        return {}
+
+    entradas: dict[tuple[int, str], str] = {}
+    for m in movimientos:
+        pid = m["product_id"][0] if m.get("product_id") else None
+        dest = m["location_dest_id"][1] if m.get("location_dest_id") else ""
+        fecha = str(m.get("date") or "")[:10]
+        if not pid or not fecha:
+            continue
+        clave = (pid, prefijo_ubicacion(dest))
+        if fecha > entradas.get(clave, ""):
+            entradas[clave] = fecha
+    return entradas
+
+
 def calcular_sugeridos_proveedor(
     odoo: OdooConnector,
     proveedor: str,
@@ -230,6 +280,9 @@ def calcular_sugeridos_proveedor(
     order_info: dict[int, dict] = {
         o["id"]: {
             "mes": o["date_order"][:7],
+            # Fecha completa: con el mes solo no se pueden calcular los días sin
+            # venta exactos ni detectar un stockout.
+            "fecha": o["date_order"][:10],
             "tienda": o["config_id"][1] if o["config_id"] else "SIN_TIENDA",
             "config_id": o["config_id"][0] if o["config_id"] else None,
         }
@@ -242,14 +295,28 @@ def calcular_sugeridos_proveedor(
             tienda_config[info["tienda"]] = info["config_id"]
 
     tiendas_unicas = sorted(tienda_config.keys())
-    meses_disponibles = sorted({info["mes"] for info in order_info.values()})
+    meses_disponibles = meses_del_periodo(fecha_inicio, fecha_fin)
 
     quants_raw = odoo.search_read(
         "stock.quant",
         [["product_id", "in", product_ids], ["location_id.usage", "=", "internal"]],
-        ["product_id", "location_id", "quantity", "reserved_quantity"],
+        # in_date = fecha de la última entrada del quant: sin ella, un producto con
+        # stock y cero ventas se clasificaba "Activo" (0 días sin movimiento).
+        ["product_id", "location_id", "quantity", "reserved_quantity", "in_date"],
         limit=0,
     )
+
+    # La tienda se liga a su stock por el almacén, no por parecido de nombres:
+    # UNIVERSIDAD guarda en UNI/Existencias y el substring nunca coincidía.
+    almacenes = cargar_almacenes(odoo)
+    prefijos = prefijos_por_tienda(odoo, tienda_config, almacenes)
+
+    quants_por_prefijo: dict[str, list[dict]] = defaultdict(list)
+    for q in quants_raw:
+        loc_name = q["location_id"][1] if q["location_id"] else ""
+        quants_por_prefijo[prefijo_ubicacion(loc_name)].append(q)
+
+    entradas_por_almacen = _ultimas_entradas(odoo, product_ids, fecha_inicio)
 
     abc_por_tienda: dict[str, dict[int, float]] = {}
     for t, config_id in tienda_config.items():
@@ -278,6 +345,7 @@ def calcular_sugeridos_proveedor(
 
     for t in tiendas_unicas:
         ventas_tienda: list[VentaMes] = []
+        ultima_venta: dict[int, str] = {}
         for line in lines_proveedor:
             oid = line["order_id"][0] if isinstance(line["order_id"], list) else line["order_id"]
             info = order_info.get(oid, {})
@@ -286,31 +354,54 @@ def calcular_sugeridos_proveedor(
             qty = float(line["qty"] or 0)
             if qty <= 0:
                 continue
+            pid_linea = line["product_id"][0]
             ventas_tienda.append(VentaMes(
-                product_id=line["product_id"][0],
+                product_id=pid_linea,
                 tienda=t,
                 mes=info.get("mes", ""),
                 qty=qty,
             ))
+            fecha = info.get("fecha", "")
+            if fecha and fecha > ultima_venta.get(pid_linea, ""):
+                ultima_venta[pid_linea] = fecha
 
-        has_product_sales = bool(ventas_tienda)
-        has_product_stock = any(
-            t.upper() in (q["location_id"][1] if q["location_id"] else "").upper()
-            for q in quants_raw
-        )
-        if not has_product_sales and not has_product_stock:
+        quants_t = quants_por_prefijo.get(prefijos.get(t, ""), [])
+
+        if not ventas_tienda and not quants_t:
             continue
 
+        # Un almacén puede tener el producto repartido en varias ubicaciones hijas:
+        # se suman, no se pisan. De la entrada se guarda la más reciente.
+        acumulado: dict[int, dict] = {}
+        for q in quants_t:
+            pid = q["product_id"][0] if q["product_id"] else None
+            if not pid:
+                continue
+            acc = acumulado.setdefault(pid, {"exist": 0.0, "reserv": 0.0, "entrada": None})
+            acc["exist"] += float(q["quantity"] or 0)
+            acc["reserv"] += float(q["reserved_quantity"] or 0)
+            entrada = q.get("in_date") or None
+            if entrada and (acc["entrada"] is None or str(entrada) > str(acc["entrada"])):
+                acc["entrada"] = entrada
+
+        # Un producto agotado suele no tener quant: su entrada solo vive en stock.move.
+        prefijo_t = prefijos.get(t, "")
+        entradas_t = {
+            pid: fecha for (pid, pref), fecha in entradas_por_almacen.items()
+            if pref == prefijo_t
+        }
+
         quants_tienda: list[StockQuant] = []
-        for q in quants_raw:
-            loc_name = q["location_id"][1] if q["location_id"] else ""
-            if t.upper() in loc_name.upper():
-                quants_tienda.append(StockQuant(
-                    product_id=q["product_id"][0],
-                    tienda=t,
-                    existencia=float(q["quantity"] or 0),
-                    reservado=float(q["reserved_quantity"] or 0),
-                ))
+        for pid in set(acumulado) | set(entradas_t):
+            acc = acumulado.get(pid, {})
+            fechas = [str(f)[:10] for f in (acc.get("entrada"), entradas_t.get(pid)) if f]
+            quants_tienda.append(StockQuant(
+                product_id=pid,
+                tienda=t,
+                existencia=acc.get("exist", 0.0),
+                reservado=acc.get("reserv", 0.0),
+                ultima_entrada=max(fechas) if fechas else None,
+            ))
 
         sugeridos = planner.calcular(
             proveedor=proveedor,
@@ -320,6 +411,7 @@ def calcular_sugeridos_proveedor(
             quants=quants_tienda,
             productos=nombres,
             meses_disponibles=meses_disponibles,
+            ultima_venta=ultima_venta,
         )
 
         if sugeridos:
@@ -463,7 +555,12 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
 
             domain: list = [["product_id", "in", product_ids]]
             if params.tienda:
-                domain.append(["location_id.name", "ilike", params.tienda])
+                # El nombre de la ubicación es "Existencias" en todas las tiendas:
+                # filtrar por él nunca coincide. Se filtra por almacén.
+                w = buscar_almacen(cargar_almacenes(odoo), params.tienda)
+                if not w:
+                    return json.dumps([], ensure_ascii=False)
+                domain.append(["warehouse_id", "=", w["id"]])
 
             orderpoints = odoo.search_read(
                 "stock.warehouse.orderpoint",
@@ -526,11 +623,16 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                                 "nombre": str,
                                 "rotacion": "Activo"|"Rezagado"|"Critico"|"Nunca_entrado",
                                 "abc": "A"|"B"|"C",
-                                "patron": "80_20"|"pico_sostenido"|"pico_aislado"|"regular",
+                                "patron": "80_20"|"pico_sostenido"|"pico_aislado"|"regular"|"stockout",
                                 "ventas_3m": [float, float, float],
                                 "existencia_actual": float,
                                 "nuevo_maximo": int,
-                                "nuevo_minimo": int
+                                "nuevo_minimo": int,
+                                "dias_sin_venta": int,
+                                "stockout": bool,
+                                "tasa_efectiva": float,
+                                "dias_con_stock": int,
+                                "alertas": [str]
                             }
                         ]
                     }
@@ -564,6 +666,11 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                             "existencia_actual": s.existencia_actual,
                             "nuevo_maximo": s.nuevo_maximo,
                             "nuevo_minimo": s.nuevo_minimo,
+                            "dias_sin_venta": s.dias_sin_venta,
+                            "stockout": s.stockout,
+                            "tasa_efectiva": round(s.tasa_efectiva, 2),
+                            "dias_con_stock": s.dias_con_stock,
+                            "alertas": s.alertas,
                         }
                         for s in sugeridos
                     ],

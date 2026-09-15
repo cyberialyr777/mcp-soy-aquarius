@@ -9,11 +9,13 @@ Tres tools activos:
 """
 import json
 import logging
+from datetime import date
 
 from mcp.server.fastmcp import FastMCP
 
 from src.engines.purchase_planner import ProductoSugerido
 from src.engines.transfer_planner import TransferPlanner
+from src.odoo.almacenes import buscar_almacen, cargar_almacenes, ubicacion_transito
 from src.odoo.connector import OdooConnector, OdooConnectionError
 from src.tools.compras import calcular_sugeridos_proveedor, _get_product_ids_for_proveedor
 from src.tools.schemas import (
@@ -33,36 +35,29 @@ def _err(e: Exception) -> str:
     return f"Error inesperado ({type(e).__name__}): {e}"
 
 
-# Nombres de tienda del plan que no matchean el nombre corto del almacén en Odoo.
-LOCATION_ALIASES = {
-    "GUAYABAL": "GUAYA",
-    "INDUSTRIAL": "INDUS",
-    "CIUDAD": "CITY CENTER",
-    "CITY": "CITY CENTER",
-    "UNIVERSIDAD": "UNI",
-    "SENDERO": "SEND",
-    "ZARAGOZA": "ZARA",
-}
+def _referencia_corrida(proveedor: str) -> str:
+    """Etiqueta del lote: 'PROSA-2026-09'. Permite ver a qué corrida pertenece una fila."""
+    return f"{proveedor}-{date.today():%Y-%m}"
 
 
-def _buscar_location_id(all_locs: list[dict], nombre_tienda: str) -> int | None:
-    """Busca el location ID que mejor coincide con el nombre de la tienda.
+def _buscar_location_id(
+    all_locs: list[dict], almacenes: list[dict], nombre_tienda: str
+) -> int | None:
+    """Ubicación de existencias de la tienda, resuelta por su almacén en Odoo.
 
-    Si el nombre no matchea directamente, reintenta con su alias en LOCATION_ALIASES.
+    Cae a coincidencia por nombre de ubicación solo si la tienda no tiene almacén.
     """
+    w = buscar_almacen(almacenes, nombre_tienda)
+    if w and w.get("lot_stock_id"):
+        return w["lot_stock_id"][0]
+
     t_upper = nombre_tienda.strip().upper()
     for loc in all_locs:
         if loc.get("name", "").upper() == t_upper:
             return loc["id"]
     for loc in all_locs:
-        if t_upper in loc.get("name", "").upper():
-            return loc["id"]
-    for loc in all_locs:
         if t_upper in loc.get("complete_name", "").upper():
             return loc["id"]
-    alias = LOCATION_ALIASES.get(t_upper)
-    if alias and alias != t_upper:
-        return _buscar_location_id(all_locs, alias)
     return None
 
 
@@ -109,18 +104,29 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     "advertencia": f"No se encontraron productos para '{params.proveedor}'",
                 }, ensure_ascii=False)
 
+            # El nombre de la ubicación es "Existencias"; CEDIS solo vive en su
+            # complete_name. Se resuelve por almacén y se baja a sus hijas.
+            cedis = buscar_almacen(cargar_almacenes(odoo), params.cedis_keyword)
+            if not cedis or not cedis.get("lot_stock_id"):
+                return json.dumps({
+                    "proveedor": params.proveedor,
+                    "cedis_tienda": params.cedis_keyword,
+                    "productos": [],
+                    "total_productos_con_stock": 0,
+                    "advertencia": f"No se encontró un almacén que coincida con '{params.cedis_keyword}'",
+                }, ensure_ascii=False)
+
             quants = odoo.search_read(
                 "stock.quant",
                 [
                     ["product_id", "in", product_ids],
-                    ["location_id.usage", "=", "internal"],
-                    ["location_id.name", "ilike", params.cedis_keyword],
+                    ["location_id", "child_of", cedis["lot_stock_id"][0]],
                 ],
                 ["product_id", "location_id", "quantity", "reserved_quantity"],
                 limit=0,
             )
 
-            cedis_nombre = ""
+            cedis_nombre = cedis["name"]
             productos = []
             for q in quants:
                 pid = q["product_id"][0] if q["product_id"] else None
@@ -129,8 +135,6 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 existencia = float(q["quantity"] or 0)
                 reservado = float(q["reserved_quantity"] or 0)
                 disponible = max(0.0, existencia - reservado)
-                if not cedis_nombre and q["location_id"]:
-                    cedis_nombre = q["location_id"][1]
                 productos.append({
                     "product_id": pid,
                     "nombre": nombres.get(pid, str(pid)),
@@ -229,25 +233,26 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
 
             product_ids, nombres = _get_product_ids_for_proveedor(odoo, params.proveedor)
 
-            quants_cedis = odoo.search_read(
-                "stock.quant",
-                [
-                    ["product_id", "in", product_ids],
-                    ["location_id.usage", "=", "internal"],
-                    ["location_id.name", "ilike", params.cedis_keyword],
-                ],
-                ["product_id", "location_id", "quantity", "reserved_quantity"],
-                limit=0,
-            )
-
-            cedis_nombre = params.cedis_keyword
+            cedis = buscar_almacen(cargar_almacenes(odoo), params.cedis_keyword)
+            cedis_nombre = cedis["name"] if cedis else params.cedis_keyword
             stock_cedis: dict[int, float] = {}
-            if quants_cedis:
-                cedis_nombre = quants_cedis[0]["location_id"][1] if quants_cedis[0]["location_id"] else params.cedis_keyword
+
+            if cedis and cedis.get("lot_stock_id"):
+                quants_cedis = odoo.search_read(
+                    "stock.quant",
+                    [
+                        ["product_id", "in", product_ids],
+                        ["location_id", "child_of", cedis["lot_stock_id"][0]],
+                    ],
+                    ["product_id", "quantity"],
+                    limit=0,
+                )
                 for q in quants_cedis:
                     pid = q["product_id"][0] if q["product_id"] else None
                     if pid:
                         stock_cedis[pid] = stock_cedis.get(pid, 0.0) + float(q["quantity"] or 0)
+            else:
+                logger.warning("No se encontró almacén CEDIS para '%s'", params.cedis_keyword)
 
             if stock_cedis:
                 cedis_prods = [
@@ -351,7 +356,10 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     "advertencia": "No hay líneas de traspaso para cargar",
                 }, ensure_ascii=False)
 
-            referencia = params.origen_referencia or f"{params.proveedor}-TRASPASO"
+            # Etiqueta de la corrida. El valor anterior era constante para todas las
+            # corridas del proveedor, así que no servía para distinguirlas al limpiar
+            # las filas viejas en Odoo. Solo etiqueta: no cancela ni modifica nada.
+            referencia = params.origen_referencia or _referencia_corrida(params.proveedor)
             ids_creados = []
             errores = []
 
@@ -486,13 +494,23 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
         },
     )
     def traspasos_generar_pickings(params: TraspasosGenerarPickingsInput) -> str:
-        """Lee las filas verificadas de x_traspasos y crea stock.picking en borrador en Odoo en lote.
+        """Lee las filas verificadas de x_traspasos y crea los stock.picking en Odoo.
 
-        Solo procesa filas con state='verificado'. Usa 'cantidad_final' (no cantidad_propuesta).
-        Después de crear los pickings, actualiza las filas a state='ejecutado'.
-        Las vendedoras hacen la salida/entrada físicamente en Odoo — este tool NO valida pickings.
+        Por cada combinación origen→destino crea DOS pickings en borrador, vía la
+        ubicación de tránsito entre almacenes:
 
-        Solo debe ejecutarlo el generador de pickings después de que todas las filas estén verificadas.
+          1. Salida    — tienda origen → tránsito, en Traslados internos del origen.
+          2. Recepción — tránsito → tienda destino, en Recepciones del destino.
+
+        Así la tienda que recibe puede validar que la mercancía realmente llegó.
+        Cada picking usa el tipo de su propio almacén, no uno global.
+
+        Solo procesa filas con state='verificado'. Usa 'cantidad_final' (no
+        cantidad_propuesta). Después las deja en state='ejecutado' con ambos pickings
+        vinculados (picking_id = salida, picking_entrada_id = recepción).
+
+        Las vendedoras hacen la salida y la entrada físicamente en Odoo — este tool
+        NO valida pickings. Solo debe ejecutarlo el generador de pickings.
 
         Args:
             params: proveedor (str), origen_referencia (str, opcional)
@@ -501,7 +519,9 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             JSON con schema:
             {
                 "pickings_creados": [
-                    {"picking_id": int, "name": str, "origen": str, "destino": str, "lineas": int}
+                    {"picking_salida_id": int, "picking_salida": str,
+                     "picking_entrada_id": int, "picking_entrada": str,
+                     "origen": str, "destino": str, "lineas": int}
                 ],
                 "filas_ejecutadas": int,
                 "errores": [str],
@@ -532,16 +552,22 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                 ["id", "name", "complete_name"],
                 limit=0,
             )
+            almacenes = cargar_almacenes(odoo)
 
-            picking_types = odoo.search_read(
-                "stock.picking.type",
-                [["code", "=", "internal"]],
-                ["id"],
-                limit=1,
-            )
-            if not picking_types:
-                return "Error: no se encontró tipo de picking interno en Odoo"
-            picking_type_id = picking_types[0]["id"]
+            # Todos los traspasos pasan por el tránsito entre almacenes de la
+            # compañía ("Traslado entre almacenes", id 196), salgan de CEDIS o de
+            # una tienda. Confirmado contra la base: es el que usa tienda ↔ tienda.
+            # Las otras 17 "Traslado <TIENDA>" son de otro flujo — en 180 días su
+            # origen fue CEDIS y nada más. Si algún día los traspasos CEDIS → tienda
+            # deben ir por esas, hay que resolver la del destino aquí, emparejando
+            # por almacén y no por nombre.
+            transito_id = ubicacion_transito(odoo)
+            if not transito_id:
+                return (
+                    "Error: la compañía no tiene configurada su ubicación de tránsito "
+                    "entre almacenes (res.company.internal_transit_location_id). "
+                    "Sin ella no se pueden crear los pickings de salida y recepción."
+                )
 
             pids_unicos = list({
                 r["product_id"][0] if isinstance(r["product_id"], list) else r["product_id"]
@@ -568,14 +594,47 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     "cantidad_final": float(fila.get("cantidad_final") or 0),
                 })
 
-            referencia = params.origen_referencia or f"{params.proveedor}-PICKINGS"
+            referencia = params.origen_referencia or _referencia_corrida(params.proveedor)
             pickings_creados = []
             errores = []
             ids_ejecutados = []
 
+            def _crear_picking(tipo_id, loc_origen, loc_destino, grupo) -> tuple[int, int]:
+                """Crea un picking con sus movimientos. Retorna (picking_id, líneas)."""
+                pk_id = odoo.create("stock.picking", {
+                    "picking_type_id": tipo_id,
+                    "location_id": loc_origen,
+                    "location_dest_id": loc_destino,
+                    "origin": referencia,
+                })
+                lineas = 0
+                for item in grupo:
+                    uom_id = uom_por_product.get(item["product_id"])
+                    if not uom_id:
+                        continue
+                    odoo.create("stock.move", {
+                        "picking_id": pk_id,
+                        "product_id": item["product_id"],
+                        "product_uom_qty": item["cantidad_final"],
+                        "product_uom": uom_id,
+                        "location_id": loc_origen,
+                        "location_dest_id": loc_destino,
+                        "name": f"Traspaso {params.proveedor}",
+                    })
+                    lineas += 1
+                return pk_id, lineas
+
+            def _nombre_picking(pk_id: int) -> str:
+                datos = odoo.search_read(
+                    "stock.picking", [["id", "=", pk_id]], ["name"], limit=1)
+                return datos[0]["name"] if datos else str(pk_id)
+
             for (origen, destino), grupo in grupos.items():
-                loc_origen_id = _buscar_location_id(all_locs, origen)
-                loc_destino_id = _buscar_location_id(all_locs, destino)
+                alm_origen = buscar_almacen(almacenes, origen)
+                alm_destino = buscar_almacen(almacenes, destino)
+
+                loc_origen_id = _buscar_location_id(all_locs, almacenes, origen)
+                loc_destino_id = _buscar_location_id(all_locs, almacenes, destino)
 
                 if not loc_origen_id:
                     errores.append(f"No se encontró ubicación para origen '{origen}'")
@@ -584,58 +643,59 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     errores.append(f"No se encontró ubicación para destino '{destino}'")
                     continue
 
-                picking_id = odoo.create("stock.picking", {
-                    "picking_type_id": picking_type_id,
-                    "location_id": loc_origen_id,
-                    "location_dest_id": loc_destino_id,
-                    "origin": referencia,
-                })
+                # Cada picking va en el tipo de SU almacén: la salida en Traslados
+                # internos del origen, la recepción en Recepciones del destino.
+                tipo_salida = (alm_origen or {}).get("int_type_id")
+                tipo_entrada = (alm_destino or {}).get("in_type_id")
+                if not tipo_salida:
+                    errores.append(f"'{origen}' no tiene tipo de Traslados internos en Odoo")
+                    continue
+                if not tipo_entrada:
+                    errores.append(f"'{destino}' no tiene tipo de Recepciones en Odoo")
+                    continue
 
-                lineas_ok = 0
-                for item in grupo:
-                    pid = item["product_id"]
-                    uom_id = uom_por_product.get(pid)
-                    if not uom_id:
-                        errores.append(f"Sin UOM para producto {pid} — línea omitida")
-                        continue
-                    odoo.create("stock.move", {
-                        "picking_id": picking_id,
-                        "product_id": pid,
-                        "product_uom_qty": item["cantidad_final"],
-                        "product_uom": uom_id,
-                        "location_id": loc_origen_id,
-                        "location_dest_id": loc_destino_id,
-                        "name": f"Traspaso {params.proveedor}",
-                    })
-                    lineas_ok += 1
-                    ids_ejecutados.append(item["fila_id"])
+                sin_uom = [i["product_id"] for i in grupo if not uom_por_product.get(i["product_id"])]
+                for pid_sin_uom in sin_uom:
+                    errores.append(f"Sin UOM para producto {pid_sin_uom} — línea omitida")
 
-                picking_data = odoo.search_read(
-                    "stock.picking", [["id", "=", picking_id]], ["name"], limit=1,
-                )
-                picking_name = picking_data[0]["name"] if picking_data else str(picking_id)
+                # Salida: tienda origen → tránsito
+                salida_id, lineas_ok = _crear_picking(
+                    tipo_salida[0], loc_origen_id, transito_id, grupo)
+                # Recepción: tránsito → tienda destino. La valida la tienda que recibe,
+                # y así puede confirmar que la mercancía realmente llegó.
+                entrada_id, _ = _crear_picking(
+                    tipo_entrada[0], transito_id, loc_destino_id, grupo)
 
-                # Marcar filas como ejecutado y vincular picking
                 fila_ids_grupo = [item["fila_id"] for item in grupo]
                 odoo.write("x_traspasos", fila_ids_grupo, {
                     "state": "ejecutado",
-                    "picking_id": picking_id,
+                    "picking_id": salida_id,
+                    "picking_entrada_id": entrada_id,
                 })
+                ids_ejecutados.extend(fila_ids_grupo)
 
+                nombre_salida = _nombre_picking(salida_id)
+                nombre_entrada = _nombre_picking(entrada_id)
                 pickings_creados.append({
-                    "picking_id": picking_id,
-                    "name": picking_name,
+                    "picking_salida_id": salida_id,
+                    "picking_salida": nombre_salida,
+                    "picking_entrada_id": entrada_id,
+                    "picking_entrada": nombre_entrada,
                     "origen": origen,
                     "destino": destino,
                     "lineas": lineas_ok,
                 })
-                logger.info("Picking %s creado: %s → %s (%d líneas)", picking_name, origen, destino, lineas_ok)
+                logger.info(
+                    "Traspaso %s → %s: salida %s, recepción %s (%d líneas)",
+                    origen, destino, nombre_salida, nombre_entrada, lineas_ok,
+                )
 
             return json.dumps({
                 "pickings_creados": pickings_creados,
                 "filas_ejecutadas": len(ids_ejecutados),
                 "errores": errores,
-                "total_pickings": len(pickings_creados),
+                "total_rutas": len(pickings_creados),
+                "total_pickings": len(pickings_creados) * 2,   # salida + recepción
             }, ensure_ascii=False)
 
         except Exception as e:

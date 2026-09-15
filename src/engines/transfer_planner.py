@@ -16,6 +16,15 @@ TIENDAS_NO_DESTINO: frozenset[str] = frozenset({"BACOAT", "WACO", "CERES"})
 # Mínimo de unidades para que un traspaso valga la pena
 PISO_EFICIENCIA = 3
 
+# Una Rezagada/Crítica solo puede quedar en 0 si el producto lleva más de este tiempo
+# en la tienda; si llegó hace poco conserva 1 pieza (manual, Paso 2 Tipo 1).
+DIAS_EN_TIENDA_PARA_VACIAR = 100
+
+# Una tienda Activa no manda su excedente si vendió hace poco y le sobra muy poco
+# (manual v3.6): solo envía con excedente >= 3 uds, o si lleva >= 35 días sin vender.
+DIAS_SIN_VENTA_EXCEDENTE = 35
+EXCEDENTE_MINIMO_ACTIVA = 2
+
 
 # ---------------------------------------------------------------------------
 # Tipos de datos
@@ -70,29 +79,49 @@ def _cobertura_dias(p: ProductoSugerido, comprometido_recibir: float = 0.0) -> f
 
 
 def _ventas_2m(p: ProductoSugerido) -> float:
-    """Suma de los últimos 2 meses completos (excluye mes en curso)."""
-    v = p.ventas_3m
-    if len(v) >= 3:
-        return v[0] + v[1]
-    if len(v) == 2:
-        return v[0]
-    if len(v) == 1:
-        return v[0]
-    return 0.0
+    """Ventas de referencia de 2 meses, para acotar cuánto puede recibir un destino.
+
+    Son los 2 meses más recientes: todos los meses del periodo son cerrados, porque
+    la convención de uso es correr hasta el último día del mes anterior.
+
+    En una tienda agotada esos meses valen casi cero — no porque no haya demanda,
+    sino porque no había qué vender. Ahí manda la tasa efectiva; si no, el tope
+    dejaría sin resurtir justo al producto que se acabó por venderse bien.
+    """
+    if p.stockout and p.tasa_efectiva > 0:
+        return p.tasa_efectiva * 2
+    return sum(p.ventas_3m[-2:])
 
 
 def _floor_fuente(p_src: ProductoSugerido, cedis_keyword: str) -> float:
     """Stock mínimo que debe quedar en la fuente después de enviar.
 
     - CEDIS: siempre puede quedar en 0.
-    - Rezagado / Critico: puede quedar en 0.
+    - Rezagado / Critico: queda en 0 solo si el producto además lleva más de 100
+      días en la tienda. Si llegó hace poco conserva 1 pieza — que no venda todavía
+      no significa que sobre (manual, Paso 2 Tipo 1).
     - Activo: no puede bajar de su nuevo_maximo.
     """
     if _es_cedis(p_src.tienda, cedis_keyword):
         return 0.0
     if p_src.rotacion in ("Rezagado", "Critico"):
-        return 0.0
+        dias = p_src.dias_en_tienda
+        # Sin fecha de entrada se asume reciente: conservar 1 es el lado seguro.
+        if dias is not None and dias > DIAS_EN_TIENDA_PARA_VACIAR:
+            return 0.0
+        return 1.0
     return float(p_src.nuevo_maximo)
+
+
+def _activa_puede_enviar(p_src: ProductoSugerido, excedente: float) -> bool:
+    """Regla de tamaño del excedente Activo (manual v3.6).
+
+    Una Activa NO envía si vendió hace menos de 35 días Y le sobran 2 o menos:
+    ese sobrante es su colchón mientras llega el resurtido.
+    """
+    if p_src.dias_sin_venta >= DIAS_SIN_VENTA_EXCEDENTE:
+        return True
+    return excedente > EXCEDENTE_MINIMO_ACTIVA
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +217,7 @@ class TransferPlanner:
                     elif p_src.rotacion in ("Rezagado", "Critico"):
                         tipo = p_src.rotacion
                         rezagadas.append((tienda, p_src, tipo))
-                    elif p_src.rotacion == "Activo" and disponible > 0:
+                    elif p_src.rotacion == "Activo" and _activa_puede_enviar(p_src, disponible):
                         excedentes.append((tienda, p_src, "Activo_excedente"))
 
                 # Excedentes: mayores primero
@@ -211,7 +240,6 @@ class TransferPlanner:
                     continue
 
                 pendiente = max_recibir
-                es_critico_dst = p_dst.rotacion in ("Rezagado", "Critico")
 
                 for tienda_src, p_src, tipo in _get_fuentes_ordenadas():
                     if tienda_src == tienda_dst:
@@ -230,11 +258,13 @@ class TransferPlanner:
                     if mover_int <= 0:
                         continue
 
-                    cobertura_actual = _cobertura_dias(p_dst, ya_recibido)
-                    es_cobertura_baja = cobertura_actual < 7
+                    # Piso de eficiencia: mover menos de 3 uds no compensa el trámite,
+                    # salvo que el producto esté crítico EN EL ORIGEN (hay que sacarlo
+                    # de ahí) o que el destino esté por quedarse sin nada.
+                    es_critico_origen = p_src.rotacion == "Critico"
+                    es_cobertura_baja = _cobertura_dias(p_dst, ya_recibido) < 7
 
-                    # Aplicar piso de eficiencia
-                    if mover_int < PISO_EFICIENCIA and not es_critico_dst and not es_cobertura_baja:
+                    if mover_int < PISO_EFICIENCIA and not es_critico_origen and not es_cobertura_baja:
                         continue
 
                     # Registrar traspaso
@@ -281,3 +311,84 @@ class TransferPlanner:
                 ))
 
         return lineas, resumen
+
+
+if __name__ == "__main__":
+    def prod(tienda, existencia, maximo, rotacion="Activo", ventas=None,
+             dias_sin_venta=0, dias_en_tienda=None, pid=1):
+        return ProductoSugerido(
+            product_id=pid, nombre="P1", tienda=tienda, rotacion=rotacion, abc="B",
+            patron="regular", ventas_3m=ventas if ventas is not None else [0.0, 0.0, 0.0],
+            existencia_actual=existencia, nuevo_maximo=maximo, nuevo_minimo=maximo,
+            dias_sin_venta=dias_sin_venta, dias_en_tienda=dias_en_tienda,
+        )
+
+    # --- A2: los 2 meses más recientes, no los más viejos ---
+    assert _ventas_2m(prod("T", 0, 0, ventas=[10.0, 20.0, 30.0])) == 50.0
+    assert _ventas_2m(prod("T", 0, 0, ventas=[5.0, 7.0])) == 12.0
+    assert _ventas_2m(prod("T", 0, 0, ventas=[])) == 0.0
+
+    # --- A4: una Rezagada solo queda en 0 si el producto lleva >100d en la tienda ---
+    vieja = prod("T1", 5, 0, "Rezagado", dias_en_tienda=200)
+    nueva = prod("T1", 5, 0, "Rezagado", dias_en_tienda=10)
+    sin_fecha = prod("T1", 5, 0, "Rezagado", dias_en_tienda=None)
+    assert _floor_fuente(vieja, "CEDIS") == 0.0
+    assert _floor_fuente(nueva, "CEDIS") == 1.0        # llegó hace poco: conserva 1
+    assert _floor_fuente(sin_fecha, "CEDIS") == 1.0    # sin dato: lado seguro
+    assert _floor_fuente(prod("CEDIS", 5, 0), "CEDIS") == 0.0
+    assert _floor_fuente(prod("T1", 9, 4), "CEDIS") == 4.0   # Activa: no baja del máximo
+
+    # --- A5: regla de tamaño del excedente Activo (v3.6) ---
+    reciente = prod("T1", 0, 0, dias_sin_venta=10)
+    parada = prod("T1", 0, 0, dias_sin_venta=40)
+    assert not _activa_puede_enviar(reciente, 2)   # vende y le sobran 2 → colchón
+    assert _activa_puede_enviar(reciente, 3)       # le sobran 3 → sí conviene mover
+    assert _activa_puede_enviar(parada, 1)         # 40d sin vender → sí envía
+
+    planner = TransferPlanner()
+
+    # --- A3: el piso de 3 uds se salta por origen Crítico, no por destino ---
+    # Crítico en el origen con 2 uds de sobra: se mueve aunque sean < 3.
+    lineas, _ = planner.calcular_plan({
+        "ORIGEN": [prod("ORIGEN", 2, 0, "Critico", dias_en_tienda=300)],
+        "DESTINO": [prod("DESTINO", 0, 5, ventas=[10.0, 10.0, 10.0])],
+    })
+    assert len(lineas) == 1 and lineas[0].cantidad == 2, lineas
+    assert lineas[0].tipo_origen == "Critico"
+
+    # Origen Activo con 2 de excedente y destino sano: el piso lo bloquea.
+    lineas, _ = planner.calcular_plan({
+        "ORIGEN": [prod("ORIGEN", 7, 5, dias_sin_venta=40, ventas=[3.0, 3.0, 3.0])],
+        "DESTINO": [prod("DESTINO", 4, 5, ventas=[2.0, 2.0, 2.0])],
+    })
+    assert lineas == [], lineas
+
+    # --- CEDIS sigue siendo la primera fuente y puede quedar en 0 ---
+    lineas, resumen = planner.calcular_plan({
+        "CEDIS": [prod("CEDIS", 10, 0)],
+        "REZAGADA": [prod("REZAGADA", 10, 0, "Rezagado", dias_en_tienda=300)],
+        "DESTINO": [prod("DESTINO", 0, 6, ventas=[8.0, 8.0, 8.0])],
+    })
+    assert lineas and lineas[0].origen == "CEDIS", lineas
+    assert sum(l.cantidad for l in lineas) == 6, lineas
+
+    # --- BACOAT/WACO/CERES nunca reciben ---
+    lineas, _ = planner.calcular_plan({
+        "CEDIS": [prod("CEDIS", 10, 0)],
+        "WACO": [prod("WACO", 0, 5, ventas=[5.0, 5.0, 5.0])],
+    })
+    assert lineas == [], lineas
+
+    # --- El resumen cuadra: lo enviado sale del origen y entra al destino ---
+    lineas, resumen = planner.calcular_plan({
+        "CEDIS": [prod("CEDIS", 10, 0)],
+        "DESTINO": [prod("DESTINO", 0, 4, ventas=[6.0, 6.0, 6.0])],
+    })
+    por_tienda = {r.tienda: r for r in resumen}
+    movido = sum(l.cantidad for l in lineas)
+    assert por_tienda["CEDIS"].enviado == movido
+    assert por_tienda["DESTINO"].recibido == movido
+    assert por_tienda["DESTINO"].existencia_despues == movido
+    assert por_tienda["DESTINO"].qty_a_pedir == max(0, 4 - movido)
+
+    print("OK")

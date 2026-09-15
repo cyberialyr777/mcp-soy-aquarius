@@ -4,9 +4,61 @@ Lógica pura. Sin dependencias de Odoo ni MCP.
 """
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 
 from src.engines.transfer_planner import ResumenPostTraspaso
+
+# Estados de picking que significan "esta mercancía ya no se va a mover más":
+# 'done' porque ya se movió (el stock.quant ya lo refleja) y 'cancel' porque no
+# va a pasar. Cualquier otro estado es un movimiento todavía pendiente.
+PICKING_CERRADO = ("done", "cancel")
+
+
+@dataclass
+class TraspasoConfirmado:
+    """Una fila de x_traspasos con el estado real de sus dos pickings.
+
+    `salida` mueve la mercancía de la tienda origen al tránsito; `entrada` la lleva
+    del tránsito a la tienda destino. Cadena vacía = todavía no existe el picking.
+    """
+    product_id: int
+    origen: str
+    destino: str
+    cantidad: float
+    estado_salida: str = ""
+    estado_entrada: str = ""
+
+
+def movimientos_pendientes(
+    traspasos: list[TraspasoConfirmado],
+) -> tuple[dict[tuple[int, str], float], dict[tuple[int, str], float]]:
+    """Separa lo que TODAVÍA no se ha movido, por lado.
+
+    El Paso 1 lee la existencia real de stock.quant. Si un traspaso ya se validó en
+    Odoo, esa mercancía ya está contada ahí y volver a aplicarla la contaría dos
+    veces. Por eso solo se aplica lo que sigue pendiente — y cada lado por separado,
+    porque la tienda origen saca la mercancía días antes de que la destino la reciba.
+
+    No hace falta saber de qué corrida es cada fila: las de meses pasados tienen
+    ambos pickings cerrados y quedan fuera solas.
+
+    Returns:
+        ({(product_id, tienda): por_salir}, {(product_id, tienda): por_llegar})
+    """
+    por_salir: dict[tuple[int, str], float] = defaultdict(float)
+    por_llegar: dict[tuple[int, str], float] = defaultdict(float)
+
+    for t in traspasos:
+        # Salida cancelada: la mercancía nunca sale, así que tampoco llega.
+        if t.estado_salida == "cancel":
+            continue
+        if t.estado_salida not in PICKING_CERRADO:
+            por_salir[(t.product_id, t.origen)] += t.cantidad
+        if t.estado_entrada not in PICKING_CERRADO:
+            por_llegar[(t.product_id, t.destino)] += t.cantidad
+
+    return dict(por_salir), dict(por_llegar)
 
 
 @dataclass
@@ -134,4 +186,35 @@ if __name__ == "__main__":
     registros = updater.calcular_paso3(
         [ResumenPostTraspaso("PC/Existencias", 1, "Producto X", "Activo", "A", 10.0, 0.0, 5.0, 15.0, 20, 5)], ops)
     assert registros[0].orderpoint_id == 44
+
+    # --- movimientos_pendientes: solo se aplica lo que todavía no se movió ---
+    def t(salida="", entrada="", cant=5.0):
+        return TraspasoConfirmado(1, "ORIGEN", "DESTINO", cant, salida, entrada)
+
+    # Verificado, sin pickings todavía: el movimiento está por ocurrir entero.
+    sale, llega = movimientos_pendientes([t()])
+    assert sale == {(1, "ORIGEN"): 5.0} and llega == {(1, "DESTINO"): 5.0}
+
+    # En tránsito: ya salió del origen (el quant ya lo refleja) pero no ha llegado.
+    sale, llega = movimientos_pendientes([t("done", "assigned")])
+    assert sale == {} and llega == {(1, "DESTINO"): 5.0}
+
+    # Traspaso viejo, ambos validados: no se aplica nada. Así se excluyen solas las
+    # corridas de meses anteriores, sin filtrar por fecha.
+    sale, llega = movimientos_pendientes([t("done", "done")])
+    assert sale == {} and llega == {}
+
+    # Salida cancelada: la mercancía no sale, así que tampoco llega.
+    sale, llega = movimientos_pendientes([t("cancel", "assigned")])
+    assert sale == {} and llega == {}
+
+    # Recepción cancelada tras haber salido: el origen ya descontó, el destino nunca recibe.
+    sale, llega = movimientos_pendientes([t("done", "cancel")])
+    assert sale == {} and llega == {}
+
+    # Varias filas del mismo producto se acumulan por tienda.
+    sale, llega = movimientos_pendientes([t(cant=3.0), t(cant=4.0), t("done", "done", 99.0)])
+    assert sale == {(1, "ORIGEN"): 7.0} and llega == {(1, "DESTINO"): 7.0}
+
     print("OK")
+
