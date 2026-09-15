@@ -8,6 +8,7 @@ Tres tools:
 """
 import json
 import logging
+from datetime import datetime, timezone
 
 from mcp.server.fastmcp import FastMCP
 
@@ -317,9 +318,16 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
     def pedidos_actualizar_reabastecimiento(params: PedidosActualizarReabastecimientoInput) -> str:
         """Actualiza stock.warehouse.orderpoint con los valores aprobados en x_pedidos.
 
-        Lee los registros de x_pedidos para el proveedor (state=pendiente), usa
-        'propuesta_max' (que las tiendas pudieron editar) para actualizar min/max/qty_to_order
-        en los orderpoints correspondientes.
+        Lee los registros de x_pedidos para el proveedor (state=pendiente) y usa
+        'propuesta_final' para actualizar min/max en los orderpoints. Es la columna de
+        Daniel — la decisión final —, no 'propuesta_max', que es lo que propuso la
+        vendedora y él pudo haber cambiado.
+
+        'qty_to_order' se calcula igual que el botón: max(0, propuesta_final −
+        existencia_despues).
+
+        Escribe el mismo resultado que el botón x_pedidos.action_actualizar_reabastecimiento
+        del módulo traspasos_pedidos, autoría incluida.
 
         ATENCIÓN: acción destructiva — modifica las reglas de reabastecimiento en Odoo.
         Solo ejecutar después de que Daniel haya revisado los registros en x_pedidos.
@@ -339,7 +347,7 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
             registros = odoo.search_read(
                 "x_pedidos",
                 [["proveedor", "=", params.proveedor], ["state", "=", "pendiente"]],
-                ["id", "orderpoint_id", "propuesta_max", "existencia_despues", "product_id"],
+                ["id", "orderpoint_id", "propuesta_final", "existencia_despues", "product_id"],
                 limit=0,
             )
 
@@ -362,7 +370,7 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     sin_op += 1
                     continue
 
-                propuesta = float(reg.get("propuesta_max") or 0)
+                propuesta = float(reg.get("propuesta_final") or 0)
                 existencia_despues = float(reg.get("existencia_despues") or 0)
                 qty_to_order = max(0.0, propuesta - existencia_despues)
 
@@ -372,7 +380,11 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                         "product_max_qty": propuesta,
                         "qty_to_order": qty_to_order,
                     })
-                    odoo.write("x_pedidos", [reg["id"]], {"state": "aprobado"})
+                    odoo.write("x_pedidos", [reg["id"]], {
+                        "state": "aprobado",
+                        "aprobado_por": odoo.uid,
+                        "aprobado_el": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+                    })
                     actualizados += 1
                 except Exception as e_inner:
                     errores.append(f"Orderpoint {op_id}: {e_inner}")
