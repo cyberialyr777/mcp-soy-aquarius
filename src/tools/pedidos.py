@@ -51,14 +51,22 @@ def _leer_traspasos_confirmados(
     traspasos ya validados se aplicarían otra vez sobre una existencia que ya los
     incluye — y los de todos los meses anteriores también.
     """
+    dominio = [["proveedor", "=", proveedor], ["state", "in", ["verificado", "ejecutado"]]]
     campos = ["product_id", "origen", "destino", "cantidad_final",
               "picking_id", "picking_entrada_id"]
-    registros = odoo.search_read(
-        "x_traspasos",
-        [["proveedor", "=", proveedor], ["state", "in", ["verificado", "ejecutado"]]],
-        campos,
-        limit=0,
-    )
+    try:
+        registros = odoo.search_read("x_traspasos", dominio, campos, limit=0)
+    except Exception:
+        # El campo todavía no existe en Odoo: se puede desplegar antes de crearlo,
+        # pero sin él no se sabe si la mercancía ya llegó al destino y ese lado se
+        # sigue contando dos veces. Mejor avisar que tumbar el Paso 3 entero.
+        logger.warning(
+            "x_traspasos sin campo 'picking_entrada_id': solo se verifica el picking "
+            "de salida. Agrégalo en Odoo para que el Paso 3 sepa si la mercancía ya "
+            "llegó a la tienda destino."
+        )
+        campos.remove("picking_entrada_id")
+        registros = odoo.search_read("x_traspasos", dominio, campos, limit=0)
 
     picking_ids = {
         pid for r in registros
