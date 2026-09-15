@@ -38,6 +38,9 @@ class TraspasoLinea:
     destino: str
     cantidad: int
     tipo_origen: str  # CEDIS | Rezagado | Critico | Activo_excedente
+    # Días sin venta EN EL ORIGEN: es el motivo por el que se saca de ahí, así que
+    # es el dato que le explica el movimiento a la vendedora que lo entrega.
+    dias_sin_venta: int
 
 
 @dataclass
@@ -280,6 +283,7 @@ class TransferPlanner:
                         destino=tienda_dst,
                         cantidad=mover_int,
                         tipo_origen=tipo,
+                        dias_sin_venta=p_src.dias_sin_venta,
                     ))
 
         # --- Construir resumen post-traspaso ---

@@ -194,7 +194,8 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                         "origen": str,
                         "destino": str,
                         "cantidad": int,
-                        "tipo_origen": "CEDIS"|"Rezagado"|"Critico"|"Activo_excedente"
+                        "tipo_origen": "CEDIS"|"Rezagado"|"Critico"|"Activo_excedente",
+                        "dias_sin_venta": int   # en el origen
                     }
                 ],
                 "resumen": [
@@ -285,6 +286,7 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                     "destino": l.destino,
                     "cantidad": l.cantidad,
                     "tipo_origen": l.tipo_origen,
+                    "dias_sin_venta": l.dias_sin_venta,
                 }
                 for l in lineas
             ]
@@ -376,6 +378,9 @@ def register(mcp: FastMCP, odoo: OdooConnector) -> None:
                         "destino": linea["destino"],
                         "cantidad_propuesta": linea["cantidad"],
                         "cantidad_final": linea["cantidad"],
+                        # Contexto para la vendedora: por qué sale de esa tienda.
+                        # Las líneas por_encargo se capturan a mano y no lo traen.
+                        "dias_sin_venta": int(linea.get("dias_sin_venta") or 0),
                         "comentarios": "",
                         "state": "borrador",
                         "ref_interna": referencia,
